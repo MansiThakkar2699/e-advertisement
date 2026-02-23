@@ -5,6 +5,8 @@ import { AdminSidebar } from "../components/admin/AdminSidebar";
 import { AllUserList } from "../components/admin/AllUserList";
 import { ViewerNavbar } from "../components/viewer/ViewerNavbar";
 import { AdvertisementList } from "../components/viewer/AdvertisementList";
+import { UseEffectDemo } from "../components/viewer/UseEffectDemo";
+import { GetApiDemo } from "../components/viewer/GetApiDemo";
 
 const router = createBrowserRouter([
     {
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
             {
                 path: "advertisement",
                 element: <AdvertisementList />
+            },
+            {
+                path: "useEffect",
+                element: <UseEffectDemo />
+            },
+            {
+                path: "getapidemo",
+                element: <GetApiDemo />
             }
         ]
     }

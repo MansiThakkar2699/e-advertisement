@@ -1,0 +1,132 @@
+ADMIN
+END USER
+
+[NAVBAR] --> userlist add user remove ,block..
+
+user
+ --> find products add products..
+
+d: project:
+      mern
+        frontend  -->cmd
+         -->learning26
+
+npm create vite
+select react
+javascript
+
+cd carscot
+npm install
+code .
+
+
+
+
+
+
+       
+
+
+package install
+npm i react-router-dom axios react-hook-form
+
+#tailwind css 4th
+npm install tailwindcss @tailwindcss/vite
+
+vite.config.js --> plugins
+index.css taaiwind css import
+
+app.jsx -->remove import of css app.css
+
+folder structure:
+ src:
+  components
+  hooks
+  pages
+  router : AppRouter.jsx
+
+  
+<Route path="/login" element={<Login />} />
+
+user:
+ADMIN:
+
+create 2 sep folder:
+
+components
+  user
+    UserNavbar.jsx
+  admin
+    AdminSidebar.jsx
+
+
+outlet: to load child components
+
+
+
+--------------------------------------
+project --->
+ cd projectname
+ npm install
+ code .
+
+ 
+ install required packages:
+ npm i react-router-dom axios react-hook-form
+ tailwindcss ->
+
+#tailwind css 4th
+npm install tailwindcss @tailwindcss/vite
+
+vite.config.js --> plugins
+index.css taaiwind css import
+
+
+index.css -->tailwind import..
+
+app.jsx -->app.css comment
+
+src:
+ components
+ router
+ pages
+ hooks
+
+ router : AppRoutes.jsx
+ 
+
+ try catch
+
+ redirect: api -->role -->"admin" "user"
+ based on role --> redirec-->
+
+ if(role=="admin")
+         /admin
+if(role=="user")
+         /user 
+
+         
+https://www.npmjs.com/package/react-toastify
+npm i react-toastify
+https://fkhadra.github.io/react-toastify/introduction/
+
+add ToastContainer in app.jsx
+
+component lifecycle hook
+function automatically call when component load
+hook: useEffect:
+---------------
+to handle side effect in react js we will use useEffect
+
+chat[] array -> 10 msg
+componsnt --> load chat load
+
+new msg --> add in array --> useEffect call again
+
+useEffect(()=>{},[chat])
+
+
+integrate post api --> login form
+apply tosters
+useEffect : demo
+apiDemo --> get --> table format -->tailwindcss --> useEffect

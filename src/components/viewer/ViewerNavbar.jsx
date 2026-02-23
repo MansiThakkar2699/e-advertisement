@@ -19,13 +19,13 @@ export const ViewerNavbar = () => {
                     {/* DESKTOP MENU */}
                     <ul className="hidden md:flex gap-6 items-center font-medium">
                         <li>
-                            <Link to="/user/dashboard" className="hover:text-blue-500">
-                                Dashboard
+                            <Link to="/viewer/getapidemo" className="hover:text-blue-500">
+                                GET API DEMO 1
                             </Link>
                         </li>
                         <li>
-                            <Link to="/user/profile" className="hover:text-blue-500">
-                                Profile
+                            <Link to="/viewer/useEffect" className="hover:text-blue-500">
+                                useeffectdemo
                             </Link>
                         </li>
                         <li>
