@@ -4,15 +4,17 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import {
     FaBars,
     FaTachometerAlt,
-    FaUsers,
     FaBullhorn,
-    FaChartBar,
+    FaPlusCircle,
+    FaUsers,
     FaMoneyBillWave,
-    FaCog,
+    FaChartLine,
+    FaBell,
+    FaUser,
     FaSignOutAlt
 } from "react-icons/fa";
 
-export const AdminSidebar = () => {
+export const AdvertiserSidebar = () => {
 
     const [isOpen, setIsOpen] = useState(true);
     const location = useLocation();
@@ -21,46 +23,55 @@ export const AdminSidebar = () => {
         {
             name: "Dashboard",
             icon: <FaTachometerAlt />,
-            path: "/admin/dashboard"
+            path: "/advertiser/dashboard"
         },
         {
-            name: "Users",
-            icon: <FaUsers />,
-            path: "/admin/users"
+            name: "Create Campaign",
+            icon: <FaPlusCircle />,
+            path: "/advertiser/create-campaign"
         },
         {
-            name: "Campaigns",
+            name: "My Campaigns",
             icon: <FaBullhorn />,
-            path: "/admin/campaigns"
+            path: "/advertiser/campaigns"
+        },
+        {
+            name: "Target Audience",
+            icon: <FaUsers />,
+            path: "/advertiser/audience"
+        },
+        {
+            name: "Budget Management",
+            icon: <FaMoneyBillWave />,
+            path: "/advertiser/budget"
         },
         {
             name: "Analytics",
-            icon: <FaChartBar />,
-            path: "/admin/analytics"
+            icon: <FaChartLine />,
+            path: "/advertiser/analytics"
         },
         {
-            name: "Budget",
-            icon: <FaMoneyBillWave />,
-            path: "/admin/budget"
+            name: "Notifications",
+            icon: <FaBell />,
+            path: "/advertiser/notifications"
         },
         {
-            name: "Settings",
-            icon: <FaCog />,
-            path: "/admin/settings"
+            name: "Profile",
+            icon: <FaUser />,
+            path: "/advertiser/profile"
         }
     ];
 
     return (
-
         <div className="flex min-h-screen bg-gray-100">
 
             {/* SIDEBAR */}
             <div
                 className={`bg-gray-900 text-white p-4 transition-all duration-300 
-                ${isOpen ? "w-64" : "w-20"}`}
+        ${isOpen ? "w-64" : "w-20"}`}
             >
 
-                {/* TOGGLE */}
+                {/* TOGGLE BUTTON */}
                 <button
                     className="text-xl mb-8"
                     onClick={() => setIsOpen(!isOpen)}
@@ -68,10 +79,10 @@ export const AdminSidebar = () => {
                     <FaBars />
                 </button>
 
-                {/* LOGO */}
+                {/* TITLE */}
                 {isOpen && (
-                    <h1 className="text-2xl font-bold mb-8 text-white-400">
-                        Admin Panel
+                    <h1 className="text-2xl font-bold mb-8 text-white-300">
+                        Advertiser Panel
                     </h1>
                 )}
 
@@ -87,9 +98,9 @@ export const AdminSidebar = () => {
                                 <Link
                                     to={item.path}
                                     className={`flex items-center gap-4 p-3 rounded-lg transition
-                                    ${active
+                  ${active
                                             ? "bg-blue-600"
-                                            : "hover:bg-gray-800"
+                                            : "hover:bg-blue-800"
                                         }`}
                                 >
 
@@ -105,13 +116,11 @@ export const AdminSidebar = () => {
                     })}
 
                     {/* LOGOUT */}
-
                     <li>
                         <button
                             className="flex items-center gap-4 p-3 w-full rounded-lg hover:bg-red-600 transition"
                         >
                             <FaSignOutAlt />
-
                             {isOpen && <span>Logout</span>}
                         </button>
                     </li>
@@ -120,15 +129,11 @@ export const AdminSidebar = () => {
 
             </div>
 
-            {/* PAGE CONTENT */}
-
+            {/* MAIN CONTENT */}
             <div className="flex-1 p-6">
-
                 <Outlet />
-
             </div>
 
         </div>
-
     );
 };

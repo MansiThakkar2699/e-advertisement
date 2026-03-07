@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 export const ViewerNavbar = () => {
 
@@ -7,72 +8,120 @@ export const ViewerNavbar = () => {
 
     return (
         <>
-            {/* NAVBAR */}
-            <nav className="bg-white shadow-md px-6 py-3 sticky top-0 z-50">
-                <div className="flex justify-between items-center">
+            <nav className="bg-gray-900 shadow-lg fixed w-full z-50">
+                <div className="max-w-7xl mx-auto px-6">
 
-                    {/* LOGO */}
-                    <h1 className="text-xl font-bold text-blue-500">
-                        MyApp
-                    </h1>
+                    <div className="flex justify-between items-center h-16">
 
-                    {/* DESKTOP MENU */}
-                    <ul className="hidden md:flex gap-6 items-center font-medium">
-                        <li>
-                            <Link to="/viewer/getapidemo" className="hover:text-blue-500">
-                                GET API DEMO 1
+                        {/* LOGO */}
+                        <Link to="/" className="flex items-center gap-2">
+                            <span className="text-3xl">📢</span>
+                            <h1 className="text-xl font-bold text-white">
+                                E-Advertisement
+                            </h1>
+                        </Link>
+
+                        {/* DESKTOP MENU */}
+                        <ul className="hidden md:flex items-center space-x-8 font-medium text-white">
+
+                            <Link to="/" className="hover:text-blue-300 transition">
+                                Home
                             </Link>
-                        </li>
-                        <li>
-                            <Link to="/viewer/useEffect" className="hover:text-blue-500">
-                                useeffectdemo
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/user/settings" className="hover:text-blue-500">
-                                Settings
-                            </Link>
-                        </li>
-                        <li>
-                            <button className="bg-blue-500 text-white px-4 py-1 rounded-lg hover:bg-blue-600">
-                                Logout
-                            </button>
-                        </li>
-                    </ul>
 
-                    {/* HAMBURGER */}
-                    <button
-                        className="md:hidden"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        ☰
-                    </button>
+                            <Link to="/ads" className="hover:text-blue-300 transition">
+                                Ads
+                            </Link>
 
+                            <Link to="/categories" className="hover:text-blue-300 transition">
+                                Categories
+                            </Link>
+
+                            <Link to="/surveys" className="hover:text-blue-300 transition">
+                                Surveys
+                            </Link>
+
+                            <Link to="/offers" className="hover:text-blue-300 transition">
+                                Offers
+                            </Link>
+
+                            <Link to="/about" className="hover:text-blue-300 transition">
+                                About
+                            </Link>
+
+                            <Link to="/contact" className="hover:text-blue-300 transition">
+                                Contact
+                            </Link>
+
+                        </ul>
+
+                        {/* DESKTOP BUTTONS */}
+                        <div className="hidden md:flex gap-4">
+
+                            <Link
+                                to="/login"
+                                className="px-4 py-2 border border-white text-white rounded-lg hover:bg-blue-800 transition"
+                            >
+                                Login
+                            </Link>
+
+                            <Link
+                                to="/signup"
+                                className="px-4 py-2 bg-white text-blue-900 rounded-lg hover:bg-gray-200 transition"
+                            >
+                                Sign Up
+                            </Link>
+
+                        </div>
+
+                        {/* MOBILE ICON */}
+                        <button
+                            className="md:hidden text-2xl text-white"
+                            onClick={() => setIsOpen(!isOpen)}
+                        >
+                            {isOpen ? <FaTimes /> : <FaBars />}
+                        </button>
+
+                    </div>
                 </div>
 
                 {/* MOBILE MENU */}
-                {isOpen && (
-                    <ul className="md:hidden flex flex-col mt-4 gap-3 font-medium">
-                        <li>
-                            <Link to="/user/dashboard">Dashboard</Link>
-                        </li>
-                        <li>
-                            <Link to="/user/profile">Profile</Link>
-                        </li>
-                        <li>
-                            <Link to="/user/settings">Settings</Link>
-                        </li>
-                        <li>
-                            <button className="bg-blue-500 text-white px-4 py-1 rounded-lg w-fit">
-                                Logout
-                            </button>
-                        </li>
-                    </ul>
-                )}
+                <div
+                    className={`md:hidden bg-blue-900 transition-all duration-300 ${isOpen ? "max-h-screen py-4" : "max-h-0 overflow-hidden"
+                        }`}
+                >
+                    <div className="flex flex-col px-6 space-y-4 font-medium text-white">
+
+                        <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-blue-300">Home</Link>
+                        <Link to="/ads" onClick={() => setIsOpen(false)} className="hover:text-blue-300">Ads</Link>
+                        <Link to="/categories" onClick={() => setIsOpen(false)} className="hover:text-blue-300">Categories</Link>
+                        <Link to="/surveys" onClick={() => setIsOpen(false)} className="hover:text-blue-300">Surveys</Link>
+                        <Link to="/offers" onClick={() => setIsOpen(false)} className="hover:text-blue-300">Offers</Link>
+                        <Link to="/about" onClick={() => setIsOpen(false)} className="hover:text-blue-300">About</Link>
+                        <Link to="/contact" onClick={() => setIsOpen(false)} className="hover:text-blue-300">Contact</Link>
+
+                        <hr className="border-blue-700" />
+
+                        <Link
+                            to="/login"
+                            className="border border-white text-white text-center py-2 rounded-lg hover:bg-blue-800"
+                        >
+                            Login
+                        </Link>
+
+                        <Link
+                            to="/signup"
+                            className="bg-white text-blue-900 text-center py-2 rounded-lg hover:bg-gray-200"
+                        >
+                            Sign Up
+                        </Link>
+
+                    </div>
+                </div>
+
             </nav>
 
             {/* PAGE CONTENT */}
-            <div className="p-6 bg-gray-100 min-h-[calc(100vh-64px)]">
+            <div className="pt-20 p-6 bg-gray-100 min-h-screen">
                 <Outlet />
             </div>
         </>
