@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Signup() {
 
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const {
         register,
@@ -13,10 +17,24 @@ export default function Signup() {
         formState: { errors }
     } = useForm();
 
+    const navigate = useNavigate();
+
     const password = watch("password");
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const submitHandler = async (data) => {
+        try {
+            const response = await axios.post("user/register", data);
+            if (response.status === 201) {
+                toast.success("User registered successfully");
+                navigate("/login");
+            }
+            else {
+                toast.error(response.data.error.errorResponse.errmsg);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error("Something went wrong");
+        }
     };
 
     return (
@@ -59,7 +77,7 @@ export default function Signup() {
 
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                    <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
 
                         {/* NAME */}
                         <div>
@@ -74,10 +92,10 @@ export default function Signup() {
                                     type="text"
                                     placeholder="Enter your name"
                                     className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 
-                                    focus:ring-indigo-500/30 focus:border-indigo-500 transition" {...register("name", { required: "Name is required" })}
+                                    focus:ring-indigo-500/30 focus:border-indigo-500 transition" {...register("fullName", { required: "Name is required" })}
                                 />
-                                {errors.name && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                                {errors.fullName && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
                                 )}
                             </div>
                         </div>
@@ -101,6 +119,33 @@ export default function Signup() {
                                 {errors.email && (
                                     <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* USER ROLE */}
+                        <div>
+                            <label className="text-sm font-semibold text-slate-700 mb-2 block">
+                                Select Role
+                            </label>
+
+                            <div className="relative group">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 w-5 h-5" />
+                                <select
+                                    className="w-full appearance-none bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 px-4 
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/30 
+                                    focus:border-indigo-500 transition text-slate-500"
+                                    {...register("role", { required: "Please select user role" })}
+                                >
+                                    <option value="">Select Role</option>
+                                    <option value="advertiser">Advertiser</option>
+                                    <option value="viewer">Viewer</option>
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+
+                                {errors.role && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
+                                )}
+
                             </div>
                         </div>
 
@@ -151,7 +196,7 @@ export default function Signup() {
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 w-5 h-5" />
 
                                 <input
-                                    type={showPassword ? "text" : "password"}
+                                    type={showConfirmPassword ? "text" : "password"}
                                     placeholder="Enter password again"
                                     className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-12 focus:outline-none focus:ring-2 
                                     focus:ring-indigo-500/30 focus:border-indigo-500 transition"
@@ -169,17 +214,18 @@ export default function Signup() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                                 >
-                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
 
                             </div>
                         </div>
 
                         {/* BUTTON */}
-                        <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-indigo-200">
+                        <button type="submit"
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-indigo-200">
 
                             Create Account
                             <ArrowRight size={18} />

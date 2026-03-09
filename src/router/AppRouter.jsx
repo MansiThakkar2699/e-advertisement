@@ -11,7 +11,7 @@ import { GetApiDemo } from "../components/viewer/GetApiDemo";
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/login",
         element: <Login />
     },
     {
