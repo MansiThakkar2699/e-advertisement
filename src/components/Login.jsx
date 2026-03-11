@@ -15,16 +15,27 @@ export default function Login() {
 
     const submitHandler = async (data) => {
         try {
-            const res = await axios.post("https://node5.onrender.com/user/login", data)
-            console.log("response...", res); //axios object
-            console.log("response data...", res.data); //actual data
+            const res = await axios.post("/user/login", data)
             if (res.status == 200) {
                 toast.success("Login success");
-                navigate("/viewer");
+                switch (res.data.role) {
+                    case "viewer" || "Viewer":
+                        navigate("/viewer");
+                        break;
+                    case "advertiser" || "Advertiser":
+                        navigate("/advertiser")
+                        break;
+                    case "admin" || "Admin":
+                        navigate("/admin")
+                        break;
+                    default:
+                        toast.error("Invalid Role");
+                        navigate("/")
+                        break;
+                }
             }
         } catch (error) {
-            toast.error("Login failed");
-            console.log(error);
+            toast.error(error.response.data.message);
         }
     };
 
