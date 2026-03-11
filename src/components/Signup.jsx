@@ -26,7 +26,7 @@ export default function Signup() {
             const response = await axios.post("user/register", data);
             if (response.status === 201) {
                 toast.success("User registered successfully");
-                navigate("/login");
+                navigate("/");
             }
             else {
                 toast.error(response.data.error.errorResponse.errmsg);
