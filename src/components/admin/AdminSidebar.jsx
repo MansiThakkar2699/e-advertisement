@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
     FaBars,
@@ -12,9 +12,9 @@ import {
     FaSignOutAlt
 } from "react-icons/fa";
 
-export const AdminSidebar = () => {
+export const AdminSidebar = ({ sidebarOpen }) => {
 
-    const [isOpen, setIsOpen] = useState(true);
+    // const [isOpen, setIsOpen] = useState(true);
     const location = useLocation();
 
     const menu = [
@@ -42,11 +42,6 @@ export const AdminSidebar = () => {
             name: "Budget",
             icon: <FaMoneyBillWave />,
             path: "/admin/budget"
-        },
-        {
-            name: "Settings",
-            icon: <FaCog />,
-            path: "/admin/settings"
         }
     ];
 
@@ -57,19 +52,13 @@ export const AdminSidebar = () => {
             {/* SIDEBAR */}
             <div
                 className={`bg-gray-900 text-white p-4 transition-all duration-300 
-                ${isOpen ? "w-64" : "w-20"}`}
+                ${sidebarOpen ? "w-64" : "w-20"}`}
             >
 
-                {/* TOGGLE */}
-                <button
-                    className="text-xl mb-8"
-                    onClick={() => setIsOpen(!isOpen)}
-                >
-                    <FaBars />
-                </button>
+
 
                 {/* LOGO */}
-                {isOpen && (
+                {sidebarOpen && (
                     <h1 className="text-2xl font-bold mb-8 text-white-400">
                         Admin Panel
                     </h1>
@@ -97,38 +86,16 @@ export const AdminSidebar = () => {
                                         {item.icon}
                                     </span>
 
-                                    {isOpen && <span>{item.name}</span>}
+                                    {sidebarOpen && <span>{item.name}</span>}
 
                                 </Link>
                             </li>
                         );
                     })}
 
-                    {/* LOGOUT */}
-
-                    <li>
-                        <button
-                            className="flex items-center gap-4 p-3 w-full rounded-lg hover:bg-red-600 transition"
-                        >
-                            <FaSignOutAlt />
-
-                            {isOpen && <span>Logout</span>}
-                        </button>
-                    </li>
-
                 </ul>
 
             </div>
-
-            {/* PAGE CONTENT */}
-
-            <div className="flex-1 p-6">
-
-                <Outlet />
-
-            </div>
-
         </div>
-
     );
 };
