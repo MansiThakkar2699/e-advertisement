@@ -8,8 +8,7 @@ import {
     FaBullhorn,
     FaChartBar,
     FaMoneyBillWave,
-    FaCog,
-    FaSignOutAlt
+    FaFolder
 } from "react-icons/fa";
 
 export const AdminSidebar = ({ sidebarOpen }) => {
@@ -27,6 +26,11 @@ export const AdminSidebar = ({ sidebarOpen }) => {
             name: "Users",
             icon: <FaUsers />,
             path: "/admin/users"
+        },
+        {
+            name: "Categories",
+            icon: <FaFolder />,
+            path: "/admin/categories"
         },
         {
             name: "Campaigns",

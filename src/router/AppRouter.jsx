@@ -11,6 +11,7 @@ import Home from "../components/viewer/Home";
 import UserManagement from "../components/admin/UserManagement";
 import NotFound from "../pages/NotFound";
 import CampaignManagement from "../components/admin/CampaignManagement";
+import CategoryManagement from "../components/admin/CategoryManagement";
 
 const router = createBrowserRouter([
     {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
             {
                 path: "users",
                 element: <UserManagement />
+            },
+            {
+                path: "categories",
+                element: <CategoryManagement />
             },
             {
                 path: "campaigns",

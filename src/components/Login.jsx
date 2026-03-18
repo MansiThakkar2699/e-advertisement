@@ -18,6 +18,9 @@ export default function Login() {
             const res = await axios.post("/user/login", data)
             if (res.status == 200) {
                 toast.success("Login success");
+                localStorage.setItem("token",res.data.token)
+                localStorage.setItem("role",res.data.role)
+
                 switch (res.data.role) {
                     case "viewer" || "Viewer":
                         navigate("/viewer");
