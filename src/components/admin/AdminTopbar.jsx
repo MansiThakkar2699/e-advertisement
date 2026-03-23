@@ -1,10 +1,59 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, Search, Menu, User, LogOut, Settings } from "lucide-react";
 import { FaBars } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const AdminTopbar = ({ toggleSidebar }) => {
 
     const [openProfile, setOpenProfile] = useState(false);
+    const [user, setUser] = useState(null);
+    const location = useLocation();
+
+    const getTitle = () => {
+        switch (location.pathname) {
+            case "/admin":
+                return "Dashboard";
+            case "/admin/users":
+                return "Users";
+            case "/admin/categories":
+                return "Categories";
+            case "/admin/campaigns":
+                return "Campaigns";
+            case "/admin/advertisements":
+                return "Advertisements";
+            case "/admin/analytics":
+                return "Analytics";
+            case "/admin/feedbacks":
+                return "Feedbacks";
+            default:
+                return "Admin Panel";
+        }
+    };
+
+
+    // Fetch logged in user
+    const fetchUser = async () => {
+
+        try {
+
+            const token = localStorage.getItem("token");
+            const decoded = jwtDecode(token);
+            const userId = decoded._id;
+            if (!userId) return;
+            const res = await axios.get(`/user/user/${userId}`);
+            setUser(res.data.data);
+        } catch (error) {
+            console.log(error);
+        }
+
+    };
+
+    useEffect(() => {
+        fetchUser();
+    }, []);
+
 
     return (
         <div className="w-full bg-white shadow-sm border-b border-slate-200 px-6 py-3 flex items-center justify-between">
@@ -24,8 +73,8 @@ const AdminTopbar = ({ toggleSidebar }) => {
 
                 {/* PAGE TITLE */}
 
-                <h1 className="text-xl font-semibold text-slate-700">
-                    Admin Dashboard
+                <h1 className="text-2xl font-bold text-slate-900">
+                    {getTitle()}
                 </h1>
 
             </div>
@@ -72,13 +121,23 @@ const AdminTopbar = ({ toggleSidebar }) => {
                         className="flex items-center gap-2"
                     >
 
-                        <img
-                            src="https://i.pravatar.cc/40"
-                            className="w-9 h-9 rounded-full"
-                        />
+                        {user?.profilePic ? (
+
+                            <img
+                                src={user.profilePic}
+                                className="w-9 h-9 object-cover rounded-full"
+                            />
+
+                        ) : (
+
+                            <span className="font-semibold text-indigo-600">
+                                {user?.fullName?.charAt(0)?.toUpperCase()}
+                            </span>
+
+                        )}
 
                         <span className="hidden md:block font-medium text-slate-700">
-                            Admin
+                            {user?.fullName || "Admin"}
                         </span>
 
                     </button>

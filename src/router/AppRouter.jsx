@@ -12,6 +12,9 @@ import UserManagement from "../components/admin/UserManagement";
 import NotFound from "../pages/NotFound";
 import CampaignManagement from "../components/admin/CampaignManagement";
 import CategoryManagement from "../components/admin/CategoryManagement";
+import AdvertisementManagement from "../components/admin/AdvertisementManagement";
+import FeedbackPage from "../components/admin/FeedbackPage";
+import ProtectedRoutes from "../components/ProtectedRoutes";
 
 const router = createBrowserRouter([
     {
@@ -24,7 +27,10 @@ const router = createBrowserRouter([
     },
     {
         path: "/admin",
-        element: <AdminLayout />,
+        element:
+            <ProtectedRoutes userRoles={["admin"]}>
+                <AdminLayout />
+            </ProtectedRoutes>,
         children: [
             {
                 path: "users",
@@ -37,16 +43,30 @@ const router = createBrowserRouter([
             {
                 path: "campaigns",
                 element: <CampaignManagement />
+            },
+            {
+                path: "advertisements",
+                element: <AdvertisementManagement />
+            },
+            {
+                path: "feedbacks",
+                element: <FeedbackPage />
             }
         ]
     },
     {
         path: "/advertiser",
-        element: <AdvertiserSidebar />
+        element:
+            <ProtectedRoutes userRoles={["advertiser"]}>
+                <AdvertiserSidebar />
+            </ProtectedRoutes>,
     },
     {
         path: "/viewer",
-        element: <ViewerNavbar />,
+        element:
+            <ProtectedRoutes userRoles={["viewer"]}>
+                <ViewerNavbar />
+            </ProtectedRoutes>,
         children: [
             {
                 path: "advertisement",

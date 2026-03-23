@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AdminSidebar } from "../components/admin/AdminSidebar";
 import AdminTopbar from "../components/admin/AdminTopbar";
+import AdminFooter from "../components/admin/AdminFooter";
 
 const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -10,7 +11,7 @@ const AdminLayout = () => {
         setSidebarOpen(!sidebarOpen);
     };
     return (
-        <div className="flex h-screen">
+        <div className="flex min-h-full overflow-hidden">
 
             {/* Sidebar */}
             <AdminSidebar sidebarOpen={sidebarOpen} />
@@ -22,9 +23,11 @@ const AdminLayout = () => {
                 <AdminTopbar toggleSidebar={toggleSidebar} />
 
                 {/* Page Content */}
-                <main className="flex-1 p-6 bg-slate-100 overflow-y-auto">
+                <main className="flex-1 p-6 bg-slate-100">
                     <Outlet />
                 </main>
+
+                <AdminFooter />
 
             </div>
 
