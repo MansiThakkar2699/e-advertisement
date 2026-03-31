@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Eye, Edit2, Trash2, CheckCircle, Loader2, Ban, AlertCircle, ShieldCheck, PlusCircle } from 'lucide-react';
+import { Search, Eye, Trash2, CheckCircle, Loader2, Ban, ShieldCheck, PlusCircle, PauseCircle, Clock, XCircle, Check, X } from 'lucide-react';
 import DataTable from '../DataTable'; // Your reusable component
 import { toast } from 'react-toastify';
 import AdvertisementModal from './AdvertisementModal';
@@ -12,8 +12,6 @@ const AdvertisementManagement = () => {
     const [error, setError] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [advertisementToDelete, setAdvertisementToDelete] = useState(null);
-    const [openAddModal, setOpenAddModal] = useState(false);
-    const [openEditModal, setOpenEditModal] = useState(false);
     const [openViewModal, setOpenViewModal] = useState(false);
     const [selectedAdvertisement, setSelectedAdvertisement] = useState(null);
 
@@ -28,9 +26,14 @@ const AdvertisementManagement = () => {
         try {
             console.log("Attempting to fetch advertisements...");
             setLoading(true);
-            // Replace with your actual Node.js endpoint
-            const response = await axios.get('/ads/advertisements');
-            console.log(response.data.data)
+            const token = localStorage.getItem("token")
+            const response = await axios.get('/ads/advertisements',
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
             const data = Array.isArray(response.data)
                 ? response.data
                 : (response.data.data || []);
@@ -71,10 +74,15 @@ const AdvertisementManagement = () => {
 
     const handleStatusChange = async (advertisementId, newStatus) => {
         try {
-            // Replace with your actual endpoint, e.g., /user/update-status/:id
-            const response = await axios.put(`/ads/advertisement/${advertisementId}`, {
-                status: newStatus
-            });
+            const token = localStorage.getItem("token")
+            const response = await axios.put(`/ads/advertisement/${advertisementId}`,
+                { status: newStatus },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
             if (response.status === 200) {
                 // Refresh the list to show the updated status and new action buttons
@@ -93,7 +101,14 @@ const AdvertisementManagement = () => {
         if (!advertisementToDelete) return;
 
         try {
-            const response = await axios.delete(`/ads/advertisement/${advertisementToDelete._id}`);
+            const token = localStorage.getItem("token")
+            const response = await axios.delete(`/ads/advertisement/${advertisementToDelete._id}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
 
             if (response.status === 200) {
@@ -131,20 +146,28 @@ const AdvertisementManagement = () => {
         {
             key: 'ad_title', label: 'Advertisement Details', sortable: true, render: (_, advertisement) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
-                        {advertisement.campaign_id.name.split(' ').map(n => n[0]).join('')}
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-sm">
+                        {advertisement.campaign_id?.name.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
-                        <p className="font-semibold text-slate-900 text-sm">{advertisement.ad_title}</p>
-                        <p className="text-slate-500 text-xs">{advertisement.campaign_id.name}</p>
+                        <p className="font-semibold text-slate-900 text-medium">{advertisement.ad_title}</p>
+                        <p className="text-slate-500 text-sm">{advertisement.campaign_id?.name}</p>
                     </div>
                 </div>
             )
         },
         {
-            key: 'ad_type', label: 'Advertisement Type', sortable: true, render: (ad_type) => {
+            key: 'description', label: 'Description', sortable: true, render: (description) => {
                 return (
-                    <p className="text-slate-500 text-xs">{ad_type}</p>
+                    <div className="flex items-center gap-3">
+                        {description ? (
+                            <p className="text-slate-700">{description}</p>
+                        ) : (
+                            <span className="text-sm px-2 py-1 bg-gray-100 text-gray-500 rounded">
+                                No description
+                            </span>
+                        )}
+                    </div>
                 );
             }
         },
@@ -153,24 +176,39 @@ const AdvertisementManagement = () => {
                 switch (status) {
                     case 'active':
                         return (
-                            <div className="flex items-center gap-1.5 text-emerald-600">
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
                                 <CheckCircle className="w-4 h-4" />
-                                <span className="text-sm font-medium">Active</span>
-                            </div>
+                                Active
+                            </span>
                         );
-                    case 'inactive':
+                    case 'paused':
                         return (
-                            <div className="flex items-center gap-1.5 text-slate-400">
-                                <AlertCircle className="w-4 h-4" />
-                                <span className="text-sm font-medium">Inactive</span>
-                            </div>
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-600 border border-orange-200">
+                                <PauseCircle size={18} className="w-4 h-4" />
+                                Paused
+                            </span>
+                        );
+                    case 'rejected':
+                        return (
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">
+                                <XCircle size={18} />
+                                Rejected
+                            </span>
+                        );
+                    case 'pending':
+                        return (
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200">
+                                <Clock size={18} />
+                                Pending
+                            </span>
                         );
                     case 'blocked':
                         return (
-                            <div className="flex items-center gap-1.5 text-orange-500">
+
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">
                                 <Ban className="w-4 h-4" />
-                                <span className="text-sm font-medium">Blocked</span>
-                            </div>
+                                Blocked
+                            </span>
                         );
                     default:
                         return (
@@ -193,13 +231,71 @@ const AdvertisementManagement = () => {
                                 className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
                                 <Eye className="w-4 h-4" />
                             </button>
-
-                            <button title="Edit Advertisement" onClick={() => {
-                                setSelectedAdvertisement(advertisement);
-                                setOpenEditModal(true);
+                            <button title="Delete Advertisement" onClick={() => {
+                                setAdvertisementToDelete(advertisement);
+                                setIsDeleteModalOpen(true);
                             }}
-                                className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-lg transition-all shadow-sm">
-                                <Edit2 className="w-4 h-4" />
+                                className="p-2 text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-lg transition-all shadow-sm">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                            <button title="Block Ad" onClick={() => handleStatusChange(advertisement._id, 'blocked')}
+                                className="p-2 text-orange-600 bg-orange-50 hover:bg-orange-100 border border-orange-100 rounded-lg transition-all shadow-sm">
+                                <Ban className="w-4 h-4" />
+                            </button>
+                            <button title="Pause Ad" onClick={() => handleStatusChange(advertisement._id, 'paused')}
+                                className="p-2 text-orange-500 bg-orange-100 hover:bg-slate-100 border border-slate-100 rounded-lg transition-all shadow-sm">
+                                <PauseCircle size={18} className="text-orange-500" />
+                            </button>
+                        </>
+                    )}
+
+                    {/* 2. Actions for PENDING advertisements */}
+                    {advertisement.status === 'pending' && (
+                        <>
+                            <button title="View Advertisement" onClick={() => {
+                                setSelectedAdvertisement(advertisement);
+                                setOpenViewModal(true);
+                            }}
+                                className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
+                                <Eye className="w-4 h-4" />
+                            </button>
+                            <button title="Approve Ad" onClick={() => handleStatusChange(advertisement._id, 'active')}
+                                className="p-2 rounded-md bg-green-100 hover:bg-green-200">
+                                <Check size={18} className="text-green-600" />
+                            </button>
+                            <button title="Reject Ad" onClick={() => handleStatusChange(advertisement._id, 'rejected')}
+                                className="p-2 rounded-md bg-red-100 hover:bg-red-200">
+                                <X size={18} className="text-red-600" />
+                            </button>
+                        </>
+                    )}
+
+                    {/* 3. Actions for BLOCKED advertisements */}
+                    {advertisement.status === 'blocked' && (
+                        <>
+                            <button title="View Advertisement" onClick={() => {
+                                setSelectedAdvertisement(advertisement);
+                                setOpenViewModal(true);
+                            }}
+                                className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
+                                <Eye className="w-4 h-4" />
+                            </button>
+                            <button title="Unblock Advertisement" onClick={() => handleStatusChange(advertisement._id, 'active')}
+                                className="flex items-center gap-1 px-3 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-lg transition-all shadow-sm text-xs font-medium">
+                                <ShieldCheck className="w-4 h-4" /> Unblock
+                            </button>
+                        </>
+                    )}
+
+                    {/* 4. Actions for REJECTED campaigns */}
+                    {advertisement.status === 'rejected' && (
+                        <>
+                            <button title="View Advertisement" onClick={() => {
+                                setSelectedAdvertisement(advertisement);
+                                setOpenViewModal(true);
+                            }}
+                                className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
+                                <Eye className="w-4 h-4" />
                             </button>
                             <button title="Delete Advertisement" onClick={() => {
                                 setAdvertisementToDelete(advertisement);
@@ -208,39 +304,29 @@ const AdvertisementManagement = () => {
                                 className="p-2 text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-lg transition-all shadow-sm">
                                 <Trash2 className="w-4 h-4" />
                             </button>
-                            <button title="Mark Inactive" onClick={() => handleStatusChange(advertisement._id, 'inactive')}
-                                className="p-2 text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-lg transition-all shadow-sm">
-                                <AlertCircle className="w-4 h-4" />
-                            </button>
-                            <button title="Block Campaign" onClick={() => handleStatusChange(advertisement._id, 'blocked')}
-                                className="p-2 text-orange-600 bg-orange-50 hover:bg-orange-100 border border-orange-100 rounded-lg transition-all shadow-sm">
-                                <Ban className="w-4 h-4" />
-                            </button>
                         </>
                     )}
 
-                    {/* 2. Actions for INACTIVE advertisements */}
-                    {advertisement.status === 'inactive' && (
+                    {/* 5. Actions for PAUSED ads */}
+                    {advertisement.status === 'paused' && (
                         <>
-                            <button title="View Advertisement" className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
+                            <button title="View Advertisement" onClick={() => {
+                                setSelectedAdvertisement(advertisement);
+                                setOpenViewModal(true);
+                            }}
+                                className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
                                 <Eye className="w-4 h-4" />
                             </button>
-                            <button title="Activate Advertisement" onClick={() => handleStatusChange(advertisement._id, 'active')}
-                                className="flex items-center gap-1 px-3 py-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-lg transition-all shadow-sm text-xs font-medium">
-                                <CheckCircle className="w-4 h-4" /> Activate
+                            <button title="Delete Advertisement" onClick={() => {
+                                setAdvertisementToDelete(advertisement);
+                                setIsDeleteModalOpen(true);
+                            }}
+                                className="p-2 text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-lg transition-all shadow-sm">
+                                <Trash2 className="w-4 h-4" />
                             </button>
-                        </>
-                    )}
-
-                    {/* 3. Actions for BLOCKED advertisements */}
-                    {advertisement.status === 'blocked' && (
-                        <>
-                            <button title="View Advertisement" className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-lg">
-                                <Eye className="w-4 h-4" />
-                            </button>
-                            <button title="Unblock Advertisement" onClick={() => handleStatusChange(advertisement._id, 'active')}
-                                className="flex items-center gap-1 px-3 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-lg transition-all shadow-sm text-xs font-medium">
-                                <ShieldCheck className="w-4 h-4" /> Unblock
+                            <button title="Activate Ad" onClick={() => handleStatusChange(advertisement._id, 'active')}
+                                className="flex items-center gap-1 px-3 py-2 text-emerald-600 bg-emerald-100 hover:bg-emerald-100 border border-emerald-100 rounded-lg transition-all shadow-sm text-xs font-medium">
+                                <CheckCircle className="w-4 h-4" />
                             </button>
                         </>
                     )}
@@ -290,17 +376,9 @@ const AdvertisementManagement = () => {
                 )
             }
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Advertisement Management</h1>
-                    <p className="text-slate-500 text-sm">Oversee advertisements and manage advertisements.</p>
-                </div>
-                <div className="flex gap-3">
-                    <button onClick={() => setOpenAddModal(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 font-medium text-sm">
-                        <PlusCircle className="w-4 h-4" /> Add New Advertisement
-                    </button>
-                </div>
+            <div className="md:flex-row md:items-center justify-between mb-8 gap-4">
+                <h1 className="text-2xl font-bold text-slate-900">Advertisement Management</h1>
+                <p className="text-slate-500 text-sm">Oversee advertisements and manage advertisements.</p>
             </div>
 
             {/* --- Search & Filter Bar Section --- */}
@@ -355,32 +433,11 @@ const AdvertisementManagement = () => {
                 </>
             )}
 
-            {/* Add Campaign Modal */}
-            {openAddModal && (
-                <AdvertisementModal
-                    mode="add"
-                    closeModal={() => setOpenAddModal(false)}
-                    refreshAdvertisements={fetchAdvertisements}
-                />
-            )}
-
-            {/* Edit Campaign Modal */}
-            {openEditModal && (
-                <AdvertisementModal
-                    mode="edit"
-                    advertisementData={selectedAdvertisement}
-                    closeModal={() => setOpenEditModal(false)}
-                    refreshAdvertisements={fetchAdvertisements}
-                />
-            )}
-
             {/* View Campaign Modal */}
             {openViewModal && (
                 <AdvertisementModal
-                    mode="view"
                     advertisementData={selectedAdvertisement}
                     closeModal={() => setOpenViewModal(false)}
-                    refreshAdvertisements={fetchAdvertisements}
                 />
             )}
         </div>

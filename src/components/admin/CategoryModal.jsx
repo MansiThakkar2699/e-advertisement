@@ -49,13 +49,24 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
 
         try {
             let res;
-
+            const token = localStorage.getItem("token")
             if (mode === "add") {
-                res = await axios.post("/category/category", formData);
+                res = await axios.post("/category/category", formData,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
             } else {
                 res = await axios.put(
                     `/category/category/${categoryData._id}`,
-                    formData
+                    formData,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
                 );
             }
             if (res.status == 200 || res.status === 201) {
@@ -76,17 +87,17 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
-            <div className="bg-white w-[520px] rounded-xl shadow-xl p-6 relative animate-fadeIn">
+            <div className="bg-white w-[520px] rounded-2xl shadow-2xl p-6 relative animate-fadeIn">
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-6 py-4 rounded-t-2xl flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-white">
                         {mode === "add" ? "Add New Category" : "Edit Category"}
                     </h2>
 
                     <button
                         onClick={closeModal}
-                        className="text-gray-500 hover:text-red-500"
+                        className="text-white hover:opacity-80"
                     >
                         <X size={20} />
                     </button>
@@ -96,7 +107,7 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
                 <form onSubmit={handleSubmit(submitHandler)} className="space-y-4">
 
                     {/* Category Name */}
-                    <div>
+                    <div className="mt-4">
                         <label className="text-sm font-medium text-gray-600">
                             Category Name
                         </label>
@@ -105,7 +116,7 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
                             type="text"
                             placeholder="Enter category name"
                             {...register("name", { required: "Category name is required" })}
-                            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
                         />
 
                         {errors.name && (
@@ -123,7 +134,7 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
                             type="text"
                             placeholder="example: electronics"
                             {...register("slug")}
-                            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
                         />
                     </div>
 
@@ -137,33 +148,25 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
                             rows="3"
                             placeholder="Enter description"
                             {...register("description")}
-                            className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
                         />
                     </div>
 
                     {/* Image */}
-                    <div>
-                        <label className="text-sm font-medium text-gray-600">
-                            Category Image
+                    <div className="flex items-center gap-4 mt-2">
+                        <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
+                            <span className="text-gray-500">Click to upload image</span>
+                            <input type="file" {...register("image")} className="hidden" />
                         </label>
 
-                        <div className="flex items-center gap-4 mt-2">
-
-                            <input
-                                type="file"
-                                {...register("image")}
-                                onChange={handleImagePreview}
+                        {preview && (
+                            <img
+                                src={preview}
+                                alt="preview"
+                                className="w-12 h-12 rounded-full object-cover border"
                             />
+                        )}
 
-                            {preview && (
-                                <img
-                                    src={preview}
-                                    alt="preview"
-                                    className="w-12 h-12 rounded-full object-cover border"
-                                />
-                            )}
-
-                        </div>
                     </div>
 
                     {/* Buttons */}
@@ -172,14 +175,14 @@ function CategoryModal({ mode, categoryData, closeModal, refreshCategories }) {
                         <button
                             type="button"
                             onClick={closeModal}
-                            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
                         >
                             Cancel
                         </button>
 
                         <button
                             type="submit"
-                            className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                            className="px-5 py-2 rounded-lg bg-slate-900 text-white hover:bg-indigo-700"
                         >
                             {mode === "add" ? "Save Category" : "Update Category"}
                         </button>

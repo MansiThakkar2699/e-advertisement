@@ -43,7 +43,7 @@ const DataTable = ({ columns, data, currentPage, itemsPerPage, totalItems, onPag
                             {columns.map((col) => (
                                 <th
                                     key={col.key}
-                                    className={`px-6 py-4 text-xs font-semibold uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-slate-800 transition-colors' : ''
+                                    className={`px-6 py-4 text-sm font-semibold uppercase tracking-wider ${col.sortable ? 'cursor-pointer hover:bg-slate-800 transition-colors' : ''
                                         } ${col.align === 'right' ? 'text-right' : ''}`}
                                     onClick={() => col.sortable && requestSort(col.key)}
                                 >

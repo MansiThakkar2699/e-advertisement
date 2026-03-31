@@ -1,359 +1,386 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { X } from "lucide-react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import React from "react";
+import {
+    X,
+    Image as ImageIcon,
+    Video,
+    Megaphone,
+    User,
+    FolderOpen,
+    Target,
+    Wallet,
+    CalendarDays,
+    MonitorPlay,
+    CircleCheck,
+    Clock3,
+    CirclePause,
+    CheckCheck,
+    CircleX,
+    Ban
+} from "lucide-react";
 
-function AdvertisementModal({ mode, advertisementData, closeModal, refreshAdvertisements }) {
-
-    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
-
-    const [campaigns, setCampaigns] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [preview, setPreview] = useState(null);
-    const [fileType, setFileType] = useState(null);
-
-    const imageFile = watch("content");
-
-    // Prefill form in edit mode
-    useEffect(() => {
-        fetchCampaigns();
-        fetchCategories();
-    }, []);
-
-    const handleImagePreview = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const previewUrl = URL.createObjectURL(file);
-            setPreview(previewUrl);
-
-            if (file.type.startsWith("video")) {
-                setFileType("video");
-            } else if (file.type.startsWith("image")) {
-                setFileType("image");
-            }
+function AdvertisementModal({ advertisementData, closeModal }) {
+    const statusMap = {
+        active: {
+            label: "Active",
+            icon: CircleCheck,
+            className: "bg-green-50 text-green-600 border border-green-200"
+        },
+        pending: {
+            label: "Pending",
+            icon: Clock3,
+            className: "bg-yellow-50 text-yellow-600 border border-yellow-200"
+        },
+        paused: {
+            label: "Paused",
+            icon: CirclePause,
+            className: "bg-orange-50 text-orange-600 border border-orange-200"
+        },
+        completed: {
+            label: "Completed",
+            icon: CheckCheck,
+            className: "bg-blue-50 text-blue-600 border border-blue-200"
+        },
+        rejected: {
+            label: "Rejected",
+            icon: CircleX,
+            className: "bg-red-50 text-red-600 border border-red-200"
+        },
+        blocked: {
+            label: "Blocked",
+            icon: Ban,
+            className: "bg-rose-50 text-rose-600 border border-rose-200"
         }
     };
 
-    const fetchCampaigns = async () => {
-        try {
-            const res = await axios.get("/campaign/campaigns");
-            setCampaigns(res.data.data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    // 1. Get the specific status configuration (fallback to pending if missing)
+    const currentStatus = statusMap[advertisementData.status] || statusMap.pending;
 
-    const fetchCategories = async () => {
-        try {
-            const res = await axios.get("/category/categories");
-            setCategories(res.data.data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    useEffect(() => {
-        if (mode === "edit" && advertisementData && campaigns.length && categories.length) {
-            setValue("campaign_id", advertisementData.campaign_id?._id)
-            setValue("category_id", advertisementData.category_id?._id)
-            setValue("ad_title", advertisementData.ad_title);
-            setValue("ad_type", advertisementData.ad_type);
-            setPreview(advertisementData.content);
-
-            // Detect file type from ad_type
-            if (advertisementData.ad_type === "Image") {
-                setFileType("image");
-            } else if (advertisementData.ad_type === "Video") {
-                setFileType("video");
-            }
-        }
-    }, [mode, advertisementData, campaigns, categories, setValue]);
-
-
-    const submitHandler = async (data) => {
-        try {
-            const formData = new FormData();
-
-            formData.append("campaign_id", data.campaign_id);
-            formData.append("category_id", data.category_id)
-            formData.append("ad_title", data.ad_title);
-            formData.append("ad_type", data.ad_type);
-            if (data.content?.[0]) {
-                formData.append("content", data.content[0]);
-            }
-            let res;
-
-            if (mode === "add") {
-                res = await axios.post("/ads/advertisement", formData);
-                console.log("add advertisement", res)
-            } else {
-                res = await axios.put(
-                    `/ads/advertisement/${advertisementData._id}`,
-                    formData
-                );
-            }
-            if (res.status == 200 || res.status === 201) {
-                toast.success(
-                    mode === "add"
-                        ? "Advertisement Created Successfully!"
-                        : "Advertisement Updated Successfully!"
-                );
-                refreshAdvertisements();
-                closeModal();
-            }
-        } catch (error) {
-            toast.error(error.response.data.message);
-        }
-    };
-
+    // 2. Extract the Icon component
+    const StatusIcon = currentStatus.icon;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-
-            <div className="bg-white w-[520px] rounded-xl shadow-xl p-6 relative animate-fadeIn">
-
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                        {mode === "add"
-                            ? "Add New Advertisement"
-                            : mode === "edit"
-                                ? "Edit Advertisement"
-                                : "Advertisement Details"
-                        }
-                    </h2>
+                <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 rounded-t-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white border-b border-slate-700">
+                    <div>
+                        <h2 className="text-xl font-semibold">Advertisement Details</h2>
+                        <p className="text-sm text-slate-300 mt-1">
+                            View advertisement, campaign, category, and targeting information
+                        </p>
+                    </div>
 
                     <button
                         onClick={closeModal}
-                        className="text-gray-500 hover:text-red-500"
+                        className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
-                {mode === "view" ? (
-                    <div className="space-y-6">
+                {/* Body */}
+                <div className="p-6 bg-slate-50 space-y-5">
+                    {/* Top Summary */}
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xl uppercase">
+                                    {advertisementData.ad_title?.slice(0, 3) || "AD"}
+                                </div>
 
-                        {/* Campaign Header */}
-                        <div className="flex items-center gap-4 border-b pb-4">
-
-                            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center font-semibold text-indigo-600">
-                                {advertisementData?.campaign_id?.name
-                                    ?.split(" ")
-                                    .map(n => n[0])
-                                    .join("")}
-                            </div>
-
-                            <div>
-                                <h3 className="text-lg font-semibold text-slate-800">
-                                    {advertisementData?.ad_title}
-                                </h3>
-
-                                <p className="text-sm text-slate-500">
-                                    Advertiser: {advertisementData?.campaign_id?.name}
-                                </p>
-                            </div>
-
-                            {/* Status */}
-                            <span className={`ml-auto px-3 py-1 text-xs rounded-full font-medium
-                                    ${advertisementData?.status === "active"
-                                    ? "bg-emerald-100 text-emerald-600"
-                                    : advertisementData?.status === "inactive"
-                                        ? "bg-slate-100 text-slate-500"
-                                        : "bg-orange-100 text-orange-600"}
-                                `}>
-                                {advertisementData?.status}
-                            </span>
-
-                        </div>
-
-                        {/* Campaign Info Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-
-                            {/* Budget */}
-                            <div className="bg-slate-50 border rounded-lg p-4">
-                                <p className="text-xs text-slate-500 mb-1">Advertisement Type</p>
-                                <p className="text-lg font-semibold text-indigo-600">
-                                    {advertisementData?.ad_type}
-                                </p>
-                            </div>
-
-                            {/* Target Age */}
-                            <div className="bg-slate-50 border rounded-lg p-4">
-                                <p className="text-xs text-slate-500 mb-1">Content</p>
-                                <p className="font-medium text-slate-700">
-                                    {advertisementData?.ad_type === "Image" ? (
-                                        <img
-                                            src={advertisementData?.content}
-                                            alt="preview"
-                                            className="w-full h-50 object-cover border"
-                                        />
-                                    ) : (
-                                        <video
-                                            src={advertisementData?.content}
-                                            controls
-                                            className="w-full h-48 rounded-lg"
-                                        />
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    < form onSubmit={handleSubmit(submitHandler)} className="flex flex-col max-h-[80vh]">
-                        <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
-                            {/* Campaign Name */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-600">
-                                    Advertisement Title
-                                </label>
-
-                                <input
-                                    type="text"
-                                    placeholder="Enter Advertisement Title"
-                                    {...register("ad_title", { required: "Advertisement title is required" })}
-                                    className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
-                                />
-
-                                {errors.ad_title && (
-                                    <p className="text-red-500 text-sm">{errors.ad_title.message}</p>
-                                )}
-                            </div>
-
-                            {/* Budget */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-600">
-                                    Advertisement Type
-                                </label>
-
-                                <select
-                                    {...register("ad_type", { required: "Advertisement type is required" })}
-                                    className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
-                                >
-                                    <option value="">Select Advertisement Type</option>
-                                    <option value="Image">Image</option>
-                                    <option value="Video">Video</option>
-                                </select>
-
-                                {errors.ad_type && (
-                                    <p className="text-red-500 text-sm">{errors.ad_type.message}</p>
-                                )}
-                            </div>
-
-                            {/* Campaign Dropdown */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-600">
-                                    Campaign
-                                </label>
-
-                                <select
-                                    {...register("campaign_id", { required: "Campaign is required" })}
-                                    className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
-                                >
-                                    <option value="">Select Campaign</option>
-
-                                    {campaigns.map((campaign) => (
-                                        <option key={campaign._id} value={campaign._id}>
-                                            {campaign.name}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.campaign_id && (
-                                    <p className="text-red-500 text-sm">{errors.campaign_id.message}</p>
-                                )}
-                            </div>
-
-                            {/* Category Dropdown */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-600">
-                                    Category
-                                </label>
-
-                                <select
-                                    {...register("category_id", { required: "Category is required" })}
-                                    className="w-full border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none"
-                                >
-                                    <option value="">Select Category</option>
-
-                                    {categories.map((category) => (
-                                        <option key={category._id} value={category._id}>
-                                            {category.name}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.category_id && (
-                                    <p className="text-red-500 text-sm">{errors.category_id.message}</p>
-                                )}
-                            </div>
-
-                            {/* Image */}
-                            <div>
-                                <label className="text-sm font-medium text-gray-600">
-                                    Advertisement Content
-                                </label>
-
-                                <div className="flex items-center gap-4 mt-2">
-
-                                    <input
-                                        type="file"
-                                        accept="image/*,video/*"
-                                        {...register("content")}
-                                        onChange={handleImagePreview}
-                                    />
-
-                                    {preview && (
-                                        <div className="mt-4">
-
-                                            {fileType === "image" && (
-                                                <img
-                                                    src={preview}
-                                                    alt="preview"
-                                                    className="w-full h-48 object-cover rounded-lg"
-                                                />
-                                            )}
-
-                                            {fileType === "video" && (
-                                                <video
-                                                    src={preview}
-                                                    controls
-                                                    className="w-full h-48 rounded-lg"
-                                                />
-                                            )}
-
-                                        </div>
-                                    )}
-
+                                <div>
+                                    <h3 className="text-2xl font-bold text-slate-800">
+                                        {advertisementData.ad_title || "Untitled Advertisement"}
+                                    </h3>
+                                    <p className="text-sm text-slate-500 mt-1">
+                                        Campaign: {advertisementData.campaign_id?.name || "N/A"}
+                                    </p>
+                                    <p className="text-sm text-slate-500">
+                                        Advertiser: {advertisementData.campaign_id?.advertiser_id?.fullName || "Unknown"}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Buttons */}
-                            <div className="flex justify-end gap-3 pt-4">
+                            <span
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium h-fit ${statusMap.className}`}
+                            >
+                                <StatusIcon size={14} />
+                                {statusMap.label}
+                            </span>
+                        </div>
+                    </div>
 
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
+                    {/* Main Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        {/* Left */}
+                        <div className="space-y-5">
+                            {/* Ad Information */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <Megaphone size={18} className="text-indigo-600" />
+                                    Advertisement Information
+                                </h3>
 
-                                <button
-                                    type="submit"
-                                    className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-                                >
-                                    {mode === "add" ? "Save Advertisement" : "Update Advertisement"}
-                                </button>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Ad Title
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.ad_title || "N/A"}
+                                        </p>
+                                    </div>
 
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Advertisement Type
+                                        </p>
+                                        <div className="mt-1 inline-flex items-center gap-2 text-base font-semibold text-slate-800">
+                                            {advertisementData.ad_type == "Image" ? (
+                                                <ImageIcon size={16} className="text-violet-600" />
+                                            ) : (
+                                                <Video size={16} className="text-violet-600" />
+                                            )}
+                                            {advertisementData.ad_type || "N/A"}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Advertiser */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <User size={18} className="text-emerald-600" />
+                                    Advertiser Information
+                                </h3>
+
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src={
+                                            advertisementData.campaign_id?.advertiser_id?.profilePic ||
+                                            "https://via.placeholder.com/60"
+                                        }
+                                        alt="advertiser"
+                                        className="w-14 h-14 rounded-full object-cover border border-slate-200"
+                                    />
+
+                                    <div>
+                                        <p className="text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.advertiser_id?.fullName || "Unknown"}
+                                        </p>
+                                        <p className="text-sm text-slate-500">
+                                            {advertisementData.campaign_id?.advertiser_id?.email || "N/A"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Category */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <FolderOpen size={18} className="text-amber-600" />
+                                    Category Information
+                                </h3>
+
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src={
+                                            advertisementData.category_id?.image ||
+                                            "https://via.placeholder.com/60"
+                                        }
+                                        alt="category"
+                                        className="w-14 h-14 rounded-xl object-cover border border-slate-200"
+                                    />
+
+                                    <div>
+                                        <p className="text-base font-semibold text-slate-800">
+                                            {advertisementData.category_id?.name || "N/A"}
+                                        </p>
+                                        <p className="text-sm text-slate-500">
+                                            {advertisementData.category_id?.description || "No description"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Platforms */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <MonitorPlay size={18} className="text-pink-600" />
+                                    Platforms
+                                </h3>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {advertisementData.campaign_id?.platforms?.length > 0 ? (
+                                        advertisementData.campaign_id.platforms.map((platform, index) => (
+                                            <span
+                                                key={index}
+                                                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-indigo-50 text-indigo-600 border border-indigo-100 capitalize"
+                                            >
+                                                {platform}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-slate-500">No platforms selected</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </form>
-                )
-                }
+
+                        {/* Right */}
+                        <div className="space-y-5">
+                            {/* Content Preview */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    {advertisementData.ad_type == "Image" ? (
+                                        <ImageIcon size={18} className="text-violet-600" />
+                                    ) : (
+                                        <Video size={18} className="text-violet-600" />
+                                    )}
+                                    Content Preview
+                                </h3>
+
+                                <div className="rounded-2xl border border-slate-200 bg-slate-100 p-4 flex items-center justify-center min-h-[340px]">
+                                    {advertisementData.ad_type == "Image" ? (
+                                        <img
+                                            src={advertisementData.content}
+                                            alt={advertisementData.ad_title}
+                                            className="max-h-[420px] w-auto rounded-xl object-contain shadow-sm"
+                                        />
+                                    ) : (
+                                        <video
+                                            src={advertisementData.content}
+                                            controls
+                                            className="w-full max-h-[420px] rounded-xl"
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Campaign Target Audience */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <Target size={18} className="text-rose-600" />
+                                    Target Audience
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Age Range
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.targetAudience?.ageMin ?? "N/A"} -{" "}
+                                            {advertisementData.campaign_id?.targetAudience?.ageMax ?? "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Gender
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800 capitalize">
+                                            {advertisementData.campaign_id?.targetAudience?.gender || "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Location
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.targetAudience?.location || "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Interests
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.targetAudience?.interests?.length > 0
+                                                ? advertisementData.campaign_id.targetAudience.interests.join(", ")
+                                                : "N/A"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Campaign Budget & Timeline */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <Wallet size={18} className="text-emerald-600" />
+                                    Campaign Budget & Timeline
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Total Budget
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            ₹{advertisementData.campaign_id?.totalBudget ?? 0}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Daily Budget
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            ₹{advertisementData.campaign_id?.dailyBudget ?? 0}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Start Date
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.start_date
+                                                ? new Date(advertisementData.campaign_id.start_date).toLocaleDateString()
+                                                : "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            End Date
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.end_date
+                                                ? new Date(advertisementData.campaign_id.end_date).toLocaleDateString()
+                                                : "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Campaign Status
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800 capitalize">
+                                            {advertisementData.campaign_id?.status || "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Created Date
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData.campaign_id?.createdAt
+                                                ? new Date(advertisementData.campaign_id.createdAt).toLocaleDateString()
+                                                : "N/A"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div >
+        </div>
+
     );
 }
 

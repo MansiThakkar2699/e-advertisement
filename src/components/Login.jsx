@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
@@ -18,8 +18,8 @@ export default function Login() {
             const res = await axios.post("/user/login", data)
             if (res.status == 200) {
                 toast.success("Login success");
-                localStorage.setItem("token",res.data.token)
-                localStorage.setItem("role",res.data.role)
+                localStorage.setItem("token", res.data.token)
+                localStorage.setItem("role", res.data.role)
 
                 switch (res.data.role) {
                     case "viewer" || "Viewer":
@@ -116,7 +116,9 @@ export default function Login() {
                                 </label>
 
                                 <button className="text-sm text-indigo-600 hover:underline">
-                                    Forgot?
+                                    <Link to="/forgotpassword" className="text-blue-500 hover:underline">
+                                        Forgot?
+                                    </Link>
                                 </button>
                             </div>
 
@@ -165,9 +167,12 @@ export default function Login() {
 
                     <p className="mt-8 text-center text-sm text-slate-500">
                         Don't have an account?
-                        <span className="text-indigo-600 font-semibold ml-1 cursor-pointer hover:underline">
+                        <Link
+                            to="/signup"
+                            className="text-indigo-600 font-semibold ml-1 cursor-pointer hover:underline"
+                        >
                             Sign Up
-                        </span>
+                        </Link>
                     </p>
 
                 </div>

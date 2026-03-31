@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
-import { Search, UserPlus, Edit2, Trash2, CheckCircle, Loader2, Ban, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Search, Trash2, CheckCircle, Loader2, Ban, ShieldCheck, XCircle, Clock, Check, X } from 'lucide-react';
 import DataTable from '../DataTable'; // Your reusable component
 import { toast } from 'react-toastify';
 
@@ -23,8 +23,15 @@ const UserManagement = () => {
         try {
             console.log("Attempting to fetch users...");
             setLoading(true);
-            // Replace with your actual Node.js endpoint
-            const response = await axios.get('/user/users');
+            const token = localStorage.getItem("token")
+            const response = await axios.get('/user/users',
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+
             console.log(response.data.data)
             const data = Array.isArray(response.data)
                 ? response.data
@@ -68,10 +75,15 @@ const UserManagement = () => {
 
     const handleStatusChange = async (userId, newStatus) => {
         try {
-            // Replace with your actual endpoint, e.g., /user/update-status/:id
-            const response = await axios.put(`/user/user/status/${userId}`, {
-                status: newStatus
-            });
+            const token = localStorage.getItem("token")
+            const response = await axios.put(`/user/user/status/${userId}`,
+                { status: newStatus },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
             if (response.status === 200) {
                 // Refresh the list to show the updated status and new action buttons
@@ -90,7 +102,14 @@ const UserManagement = () => {
         if (!userToDelete) return;
 
         try {
-            const response = await axios.delete(`/user/user/${userToDelete._id}`);
+            const token = localStorage.getItem("token")
+            const response = await axios.delete(`/user/user/${userToDelete._id}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
 
             if (response.status === 200) {
@@ -114,12 +133,22 @@ const UserManagement = () => {
         {
             key: 'fullName', label: 'User Details', sortable: true, render: (_, user) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
-                        {user.fullName.split(' ').map(n => n[0]).join('')}
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-sm">
+                        {user?.profilePic ? (
+                            <img
+                                src={user.profilePic}
+                                alt="profile"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span>
+                                {user.fullName.split(' ').map(n => n[0]).join('')}
+                            </span>
+                        )}
                     </div>
                     <div>
-                        <p className="font-semibold text-slate-900 text-sm">{user.fullName}</p>
-                        <p className="text-slate-500 text-xs">{user.email}</p>
+                        <p className="font-semibold text-slate-900 text-medium">{user.fullName}</p>
+                        <p className="text-slate-500 text-sm">{user.email}</p>
                     </div>
                 </div>
             )
@@ -127,12 +156,12 @@ const UserManagement = () => {
         {
             key: 'role', label: 'Role', sortable: true, render: (role) => {
                 const roleStyles = {
-                    advertiser: "bg-purple-100 text-purple-700",
-                    viewer: "bg-blue-100 text-blue-700"
+                    advertiser: "bg-purple-100 text-purple-600",
+                    viewer: "bg-gray-100 text-gray-600"
                 };
 
                 return (
-                    <span className={`text-xs font-medium px-3 py-1 rounded-full ${roleStyles[role] || "bg-gray-100 text-gray-600"}`} >
+                    <span className={`text-sm font-medium px-2 py-1 rounded-full capitalize items-center gap-1.5 ${roleStyles[role] || "bg-gray-100 text-gray-600"}`} >
                         {role}
                     </span >
                 );
@@ -143,31 +172,32 @@ const UserManagement = () => {
                 switch (status) {
                     case 'active':
                         return (
-                            <div className="flex items-center gap-1.5 text-emerald-600">
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
                                 <CheckCircle className="w-4 h-4" />
-                                <span className="text-sm font-medium">Active</span>
-                            </div>
-                        );
-                    case 'inactive':
-                        return (
-                            <div className="flex items-center gap-1.5 text-slate-400">
-                                <AlertCircle className="w-4 h-4" />
-                                <span className="text-sm font-medium">Inactive</span>
-                            </div>
+                                Active
+                            </span>
                         );
                     case 'blocked':
                         return (
-                            <div className="flex items-center gap-1.5 text-orange-500">
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-600 border border-orange-200">
                                 <Ban className="w-4 h-4" />
-                                <span className="text-sm font-medium">Blocked</span>
-                            </div>
+                                Blocked
+                            </span>
+
                         );
-                    case 'deleted':
+                    case 'pending':
                         return (
-                            <div className="flex items-center gap-1.5 text-red-500">
-                                <Trash2 className="w-4 h-4" />
-                                <span className="text-sm font-medium">Deleted</span>
-                            </div>
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-50 text-yellow-600 border border-yellow-200">
+                                <Clock size={18} />
+                                Pending
+                            </span>
+                        );
+                    case 'rejected':
+                        return (
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">
+                                <XCircle size={18} />
+                                Rejected
+                            </span>
                         );
                     default:
                         return (
@@ -183,10 +213,6 @@ const UserManagement = () => {
                 <div className="flex justify-end gap-2">
                     {user.status === 'active' && (
                         <>
-                            <button title="Mark Inactive" onClick={() => handleStatusChange(user._id, 'inactive')}
-                                className="p-2 text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-lg transition-all shadow-sm">
-                                <AlertCircle className="w-4 h-4" />
-                            </button>
                             <button title="Block User" onClick={() => handleStatusChange(user._id, 'blocked')}
                                 className="p-2 text-orange-600 bg-orange-50 hover:bg-orange-100 border border-orange-100 rounded-lg transition-all shadow-sm">
                                 <Ban className="w-4 h-4" />
@@ -201,19 +227,33 @@ const UserManagement = () => {
                         </>
                     )}
 
-                    {/* 2. Actions for INACTIVE users */}
-                    {user.status === 'inactive' && (
-                        <button title="Activate User" onClick={() => handleStatusChange(user._id, 'active')}
-                            className="flex items-center gap-1 px-3 py-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-lg transition-all shadow-sm text-xs font-medium">
-                            <CheckCircle className="w-4 h-4" /> Activate
-                        </button>
-                    )}
-
-                    {/* 3. Actions for BLOCKED users */}
+                    {/* 2. Actions for BLOCKED users */}
                     {user.status === 'blocked' && (
                         <button title="Unblock User" onClick={() => handleStatusChange(user._id, 'active')}
                             className="flex items-center gap-1 px-3 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-lg transition-all shadow-sm text-xs font-medium">
-                            <ShieldCheck className="w-4 h-4" /> Unblock
+                            <ShieldCheck className="w-4 h-4" />
+                        </button>
+                    )}
+                    {/* 3. Actions for PENDING users */}
+                    {user.status === 'pending' && (
+                        <>
+                            <button title="Approve User" onClick={() => handleStatusChange(user._id, 'active')}
+                                className="p-2 rounded-md bg-green-100 hover:bg-green-200">
+                                <Check size={18} className="text-green-600" />
+                            </button>
+                            <button title="Reject User" onClick={() => handleStatusChange(user._id, 'rejected')}
+                                className="p-2 rounded-md bg-red-100 hover:bg-red-200">
+                                <X size={18} className="text-red-600" />
+                            </button>
+                        </>
+                    )}
+                    {user.status === 'rejected' && (
+                        <button title="Delete User" onClick={() => {
+                            setUserToDelete(user);
+                            setIsDeleteModalOpen(true);
+                        }}
+                            className="p-2 text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-lg transition-all shadow-sm">
+                            <Trash2 className="w-4 h-4" />
                         </button>
                     )}
                 </div >

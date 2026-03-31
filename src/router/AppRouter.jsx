@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
 import AdminLayout from "../layouts/AdminLayout";
@@ -15,6 +15,10 @@ import CategoryManagement from "../components/admin/CategoryManagement";
 import AdvertisementManagement from "../components/admin/AdvertisementManagement";
 import FeedbackPage from "../components/admin/FeedbackPage";
 import ProtectedRoutes from "../components/ProtectedRoutes";
+import AdBuilder from "../components/AdBuilder";
+import AdminDashboard from "../components/admin/AdminDashboard";
+import { Forgotpassword } from "../components/ForgotPassword";
+import { ResetPassword } from "../components/ResetPassword";
 
 const router = createBrowserRouter([
     {
@@ -26,12 +30,32 @@ const router = createBrowserRouter([
         element: <Signup />
     },
     {
+        path: "/forgotpassword",
+        element: <Forgotpassword />
+    },
+    {
+        path: "/resetpassword/:token",
+        element: <ResetPassword />
+    },
+    {
+        path: "/adbuilder",
+        element: <AdBuilder />
+    },
+    {
         path: "/admin",
         element:
             <ProtectedRoutes userRoles={["admin"]}>
                 <AdminLayout />
             </ProtectedRoutes>,
         children: [
+            {
+                index: true,
+                element: <Navigate to="/admin/dashboard" replace />
+            },
+            {
+                path: "dashboard",
+                element: <AdminDashboard />
+            },
             {
                 path: "users",
                 element: <UserManagement />

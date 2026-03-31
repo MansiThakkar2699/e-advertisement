@@ -5,7 +5,6 @@ import {
     FaTachometerAlt,
     FaUsers,
     FaBullhorn,
-    FaChartBar,
     FaFolder,
     FaAd,
     FaCommentDots
@@ -20,7 +19,7 @@ export const AdminSidebar = ({ sidebarOpen }) => {
         {
             name: "Dashboard",
             icon: <FaTachometerAlt />,
-            path: "/admin"
+            path: "/admin/dashboard"
         },
         {
             name: "Users",
@@ -41,11 +40,6 @@ export const AdminSidebar = ({ sidebarOpen }) => {
             name: "Advertisements",
             icon: <FaAd />,
             path: "/admin/advertisements"
-        },
-        {
-            name: "Analytics",
-            icon: <FaChartBar />,
-            path: "/admin/analytics"
         },
         {
             name: "Feedback",

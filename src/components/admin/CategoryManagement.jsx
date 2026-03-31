@@ -25,8 +25,14 @@ const CategoryManagement = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            // Replace with your actual Node.js endpoint
-            const response = await axios.get('/category/categories');
+            const token = localStorage.getItem("token")
+            const response = await axios.get('/category/categories',
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
             console.log(response.data.data)
             const data = Array.isArray(response.data)
                 ? response.data
@@ -69,10 +75,15 @@ const CategoryManagement = () => {
 
     const handleStatusChange = async (categoryId, newStatus) => {
         try {
-            // Replace with your actual endpoint, e.g., /user/update-status/:id
-            const response = await axios.put(`/category/category/${categoryId}`, {
-                status: newStatus
-            });
+            const token = localStorage.getItem("token")
+            const response = await axios.put(`/category/category/${categoryId}`,
+                { status: newStatus },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
             if (response.status === 200) {
                 // Refresh the list to show the updated status and new action buttons
@@ -91,7 +102,14 @@ const CategoryManagement = () => {
         if (!categoryToDelete) return;
 
         try {
-            const response = await axios.delete(`/category/category/${categoryToDelete._id}`);
+            const token = localStorage.getItem("token")
+            const response = await axios.delete(`/category/category/${categoryToDelete._id}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
 
 
             if (response.status === 200) {
@@ -115,7 +133,7 @@ const CategoryManagement = () => {
         {
             key: 'name', label: 'Category Details', sortable: true, render: (_, category) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-sm">
                         {category.image ? (
                             <img
                                 src={category.image}
@@ -131,8 +149,8 @@ const CategoryManagement = () => {
                         )}
                     </div>
                     <div>
-                        <p className="font-semibold text-slate-900 text-sm">{category.name}</p>
-                        <p className="text-slate-500 text-xs">{category.slug}</p>
+                        <p className="font-semibold text-slate-900 text-medium">{category.name}</p>
+                        <p className="text-slate-500 text-sm">{category.slug}</p>
                     </div>
                 </div>
             )
@@ -144,7 +162,7 @@ const CategoryManagement = () => {
                         {description ? (
                             <p className="text-slate-700">{description}</p>
                         ) : (
-                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded">
+                            <span className="text-sm px-2 py-1 bg-gray-100 text-gray-500 rounded">
                                 No description
                             </span>
                         )}
@@ -157,17 +175,17 @@ const CategoryManagement = () => {
                 switch (status) {
                     case 'active':
                         return (
-                            <div className="flex items-center gap-1.5 text-emerald-600">
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
                                 <CheckCircle className="w-4 h-4" />
-                                <span className="text-sm font-medium">Active</span>
-                            </div>
+                                Active
+                            </span>
                         );
                     case 'inactive':
                         return (
-                            <div className="flex items-center gap-1.5 text-slate-400">
+                            <span className="text-sm font-medium inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
                                 <AlertCircle className="w-4 h-4" />
-                                <span className="text-sm font-medium">Inactive</span>
-                            </div>
+                                Inactive
+                            </span>
                         );
                     default:
                         return (
@@ -206,11 +224,21 @@ const CategoryManagement = () => {
 
                     {/* 2. Actions for INACTIVE categories */}
                     {category.status === 'inactive' && (
-                        <button title="Activate Category" onClick={() => handleStatusChange(category._id, 'active')}
-                            className="flex items-center gap-1 px-3 py-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-lg transition-all shadow-sm text-xs font-medium">
-                            <CheckCircle className="w-4 h-4" /> Activate
-                        </button>
-                    )}
+                        <>
+                            <button title="Activate Category" onClick={() => handleStatusChange(category._id, 'active')}
+                                className="flex items-center gap-1 px-3 py-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-lg transition-all shadow-sm text-xs font-medium">
+                                <CheckCircle className="w-4 h-4" />
+                            </button>
+                            <button title="Delete Category" onClick={() => {
+                                setCategoryToDelete(category);
+                                setIsDeleteModalOpen(true);
+                            }}
+                                className="p-2 text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-lg transition-all shadow-sm">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </>
+                    )
+                    }
                 </div >
             )
         }

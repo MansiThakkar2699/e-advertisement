@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, ChevronDown } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
+import axios from 'axios'
+import { ArrowRight, Eye, EyeOff, Lock } from 'lucide-react'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
-export default function Signup() {
+export const ResetPassword = () => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -17,26 +17,20 @@ export default function Signup() {
         formState: { errors }
     } = useForm();
 
-    const navigate = useNavigate();
+    const password = watch("newPassword");
 
-    const password = watch("password");
-
+    const token = useParams().token
     const submitHandler = async (data) => {
         try {
-            const response = await axios.post("user/register", data);
-            if (response.status === 201) {
-                toast.success("User registered successfully");
-                navigate("/");
-            }
-            else {
-                toast.error(response.data.error.errorResponse.errmsg);
+            data.token = token
+            const res = await axios.put("/user/resetpassword", data)
+            if (res.status == 200) {
+                toast.success("Password Reset Successfully!...")
             }
         } catch (error) {
-            console.log(error);
-            toast.error("Something went wrong");
+            toast.error(error.response.data.message)
         }
-    };
-
+    }
     return (
         <div className="min-h-screen flex bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-200">
 
@@ -66,93 +60,16 @@ export default function Signup() {
                 <div className="w-full max-w-md backdrop-blur-lg bg-white/70 border border-white/40 shadow-2xl rounded-3xl p-10">
 
                     <div className="mb-8 text-center">
-
                         <h1 className="text-3xl font-bold text-slate-800 mb-2">
-                            Create Account
+                            Reset Password
                         </h1>
-
-                        <p className="text-slate-500 text-sm">
-                            Sign up to get started
-                        </p>
-
                     </div>
 
                     <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
-
-                        {/* NAME */}
-                        <div>
-                            <label className="text-sm font-semibold text-slate-700 mb-2 block">
-                                Full Name
-                            </label>
-                            <div className="relative group">
-
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 w-5 h-5" />
-
-                                <input
-                                    type="text"
-                                    placeholder="Enter your name"
-                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 
-                                    focus:ring-indigo-500/30 focus:border-indigo-500 transition" {...register("fullName", { required: "Name is required" })}
-                                />
-                                {errors.fullName && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* EMAIL */}
-                        <div>
-                            <label className="text-sm font-semibold text-slate-700 mb-2 block">
-                                Email Address
-                            </label>
-                            <div className="relative group">
-
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 w-5 h-5" />
-
-                                <input
-                                    type="email"
-                                    placeholder="name@company.com"
-                                    className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 focus:outline-none 
-                                    focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
-                                    {...register("email", { required: "Email is required" })}
-                                />
-                                {errors.email && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* USER ROLE */}
-                        <div>
-                            <label className="text-sm font-semibold text-slate-700 mb-2 block">
-                                Select Role
-                            </label>
-
-                            <div className="relative group">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 w-5 h-5" />
-                                <select
-                                    className="w-full appearance-none bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-4 px-4 
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/30 
-                                    focus:border-indigo-500 transition text-slate-500"
-                                    {...register("role", { required: "Please select user role" })}
-                                >
-                                    <option value="">Select Role</option>
-                                    <option value="advertiser">Advertiser</option>
-                                    <option value="viewer">Viewer</option>
-                                </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
-
-                                {errors.role && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
-                                )}
-
-                            </div>
-                        </div>
-
                         {/* PASSWORD */}
                         <div>
                             <label className="text-sm font-semibold text-slate-700 mb-2 block">
-                                Password
+                                New Password
                             </label>
                             <div className="relative group">
 
@@ -163,7 +80,7 @@ export default function Signup() {
                                     placeholder="Create password"
                                     className="w-full bg-white border border-slate-200 rounded-xl py-3.5 pl-12 pr-12 focus:outline-none focus:ring-2 
                                     focus:ring-indigo-500/30 focus:border-indigo-500 transition"
-                                    {...register("password", {
+                                    {...register("newPassword", {
                                         required: "Password is required",
                                         minLength: {
                                             value: 6,
@@ -171,8 +88,8 @@ export default function Signup() {
                                         }
                                     })}
                                 />
-                                {errors.password && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                                {errors.newPassword && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.newPassword.message}</p>
                                 )}
 
                                 <button
@@ -227,29 +144,14 @@ export default function Signup() {
                         <button type="submit"
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-indigo-200">
 
-                            Create Account
+                            Reset Password
                             <ArrowRight size={18} />
 
                         </button>
-
                     </form>
-
-                    <p className="mt-8 text-center text-sm text-slate-500">
-
-                        Already have an account?
-
-                        <Link
-                            to="/"
-                            className="text-indigo-600 font-semibold ml-1 cursor-pointer hover:underline"
-                        >
-                            Login
-                        </Link>
-
-                    </p>
-
                 </div>
             </div>
 
         </div>
-    );
+    )
 }
