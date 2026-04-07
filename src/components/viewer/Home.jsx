@@ -1,435 +1,377 @@
 import React from "react";
-import Slider from "react-slick";
-import { motion } from "framer-motion";
-import { FaLaptop, FaPlane, FaUtensils, FaMobileAlt, FaFacebook, FaInstagram, FaTwitter, FaLinkedin } from "react-icons/fa";
+import {
+    ArrowRight,
+    BadgePercent,
+    Layers3,
+    Megaphone,
+    Sparkles,
+    Star,
+    ClipboardList,
+    Gift,
+    ShieldCheck
+} from "lucide-react";
 
-export default function Home() {
+const featuredAds = [
+    {
+        id: 1,
+        title: "iPhone 15 Pro Offer",
+        desc: "Get exciting exchange bonuses and limited-time discounts.",
+        image:
+            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1000&q=80",
+        tag: "Electronics"
+    },
+    {
+        id: 2,
+        title: "Fashion Mega Sale",
+        desc: "Discover trendy outfits with up to 60% off this weekend.",
+        image:
+            "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=80",
+        tag: "Fashion"
+    },
+    {
+        id: 3,
+        title: "Travel to Maldives",
+        desc: "Book now and unlock special holiday packages.",
+        image:
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80",
+        tag: "Travel"
+    }
+];
 
-    /* HERO ADS */
+const categories = [
+    {
+        name: "Electronics",
+        icon: "📱",
+        desc: "Smart gadgets and latest tech deals"
+    },
+    {
+        name: "Fashion",
+        icon: "👗",
+        desc: "Trending outfits and style collections"
+    },
+    {
+        name: "Food",
+        icon: "🍔",
+        desc: "Yummy offers from top food brands"
+    },
+    {
+        name: "Travel",
+        icon: "✈️",
+        desc: "Holiday packages and destination offers"
+    }
+];
 
-    const heroAds = [
-        {
-            title: "Reach Millions With Smart Advertising",
-            desc: "Promote your business with powerful ad campaigns.",
-            image:
-                "https://images.unsplash.com/photo-1556745757-8d76bdb6984b"
-        },
-        {
-            title: "Boost Your Brand Visibility",
-            desc: "Create engaging advertisements for your audience.",
-            image:
-                "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da"
-        },
-        {
-            title: "Target The Right Audience",
-            desc: "Smart targeting for better ad performance.",
-            image:
-                "https://images.unsplash.com/photo-1522199710521-72d69614c702"
-        }
-    ];
+const offers = [
+    {
+        title: "Weekend Deal",
+        discount: "Up to 50% Off",
+        color: "from-pink-500 to-rose-500"
+    },
+    {
+        title: "Flash Sale",
+        discount: "Buy 1 Get 1 Free",
+        color: "from-indigo-500 to-violet-500"
+    },
+    {
+        title: "Exclusive Promo",
+        discount: "Extra 20% Cashback",
+        color: "from-emerald-500 to-teal-500"
+    }
+];
 
-    /* CATEGORIES */
+const surveys = [
+    {
+        title: "Tell us your favorite gadget brand",
+        desc: "Join our quick survey and help improve future ad recommendations."
+    },
+    {
+        title: "What kind of offers do you like most?",
+        desc: "Discounts, cashback, bundles, or exclusive launches — share your preference."
+    }
+];
 
-    const categories = [
-        { name: "Technology", icon: <FaLaptop size={28} /> },
-        { name: "Travel", icon: <FaPlane size={28} /> },
-        { name: "Food", icon: <FaUtensils size={28} /> },
-        { name: "Electronics", icon: <FaMobileAlt size={28} /> }
-    ];
-
-    /* ADS */
-
-    const ads = [
-        {
-            title: "Macbook Pro M3",
-            brand: "Apple",
-            img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-        },
-        {
-            title: "Adidas Running Shoes",
-            brand: "Adidas",
-            img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff"
-        },
-        {
-            title: "Luxury Travel Offer",
-            brand: "TravelX",
-            img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-        }
-    ];
-
-    /* BRAND LOGOS */
-
-    const brands = [
-        "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
-        "https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg",
-        "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
-        "https://upload.wikimedia.org/wikipedia/commons/5/51/Google.png",
-        "https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg"
-    ];
-
-    const sliderSettings = {
-        autoplay: true,
-        autoplaySpeed: 3000,
-        dots: true,
-        arrows: false,
-        infinite: true
-    };
-
-    const brandSettings = {
-        slidesToShow: 5,
-        autoplay: true,
-        autoplaySpeed: 2000,
-        arrows: false,
-        infinite: true
-    };
-
+const Home = () => {
     return (
-        <div className="bg-gray-50">
+        <div className="w-full">
+            {/* Hero Section */}
+            <section className="relative overflow-hidden">
+                <div className="absolute inset-0">
+                    <img
+                        src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80"
+                        alt="hero"
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/60"></div>
+                </div>
 
-            {/* HERO CAROUSEL */}
+                <div className="relative max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-24 md:py-32">
+                    <div className="max-w-3xl text-white">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-6">
+                            <Sparkles size={16} className="text-yellow-300" />
+                            <span className="text-sm font-medium">
+                                Smarter ads. Better offers. More engagement.
+                            </span>
+                        </div>
 
-            <Slider {...sliderSettings}>
-                {heroAds.map((ad, i) => (
-                    <div key={i} className="relative h-[550px]">
+                        <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+                            Discover Personalized Ads, Deals & Interactive Experiences
+                        </h1>
 
-                        <img
-                            src={ad.image}
-                            className="w-full h-full object-cover brightness-75"
-                        />
+                        <p className="mt-6 text-lg text-slate-200 leading-8 max-w-2xl">
+                            Explore trending campaigns, exclusive promotions, category-based
+                            offers, and engaging surveys designed to match your interests.
+                        </p>
 
-                        <div className="absolute inset-0 flex items-center">
+                        <div className="mt-8 flex flex-wrap gap-4">
+                            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 transition shadow-lg font-medium">
+                                Explore Ads
+                                <ArrowRight size={18} />
+                            </button>
 
-                            <div className="max-w-7xl mx-auto px-6 text-white">
+                            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm transition font-medium">
+                                View Offers
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                                <motion.h1
-                                    initial={{ y: 40, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    className="text-5xl font-bold"
-                                >
+            {/* Stats Strip */}
+            <section className="relative -mt-10 z-10">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { label: "Active Promotions", value: "250+" },
+                            { label: "Top Categories", value: "40+" },
+                            { label: "Happy Viewers", value: "10K+" },
+                            { label: "Interactive Surveys", value: "120+" }
+                        ].map((item, index) => (
+                            <div
+                                key={index}
+                                className="bg-white rounded-2xl shadow-md border border-slate-200 p-5 text-center"
+                            >
+                                <h3 className="text-2xl font-bold text-slate-900">{item.value}</h3>
+                                <p className="text-sm text-slate-500 mt-1">{item.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Featured Ads */}
+            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <p className="text-indigo-600 font-medium text-sm">Featured Ads</p>
+                        <h2 className="text-3xl font-bold text-slate-900 mt-1">
+                            Trending Promotions
+                        </h2>
+                    </div>
+                    <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition">
+                        View All
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {featuredAds.map((ad) => (
+                        <div
+                            key={ad.id}
+                            className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
+                        >
+                            <div className="h-60 overflow-hidden">
+                                <img
+                                    src={ad.image}
+                                    alt={ad.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                                />
+                            </div>
+
+                            <div className="p-6">
+                                <span className="inline-flex px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium">
+                                    {ad.tag}
+                                </span>
+
+                                <h3 className="text-xl font-semibold text-slate-900 mt-4">
                                     {ad.title}
-                                </motion.h1>
+                                </h3>
 
-                                <p className="mt-6 text-lg max-w-xl">
+                                <p className="text-slate-500 text-sm leading-6 mt-3">
                                     {ad.desc}
                                 </p>
 
-                                <button className="mt-8 bg-indigo-600 px-8 py-3 rounded-lg">
-                                    Explore Ads
+                                <button className="mt-5 inline-flex items-center gap-2 text-indigo-600 font-medium hover:text-indigo-700 transition">
+                                    Explore Now
+                                    <ArrowRight size={16} />
                                 </button>
-
                             </div>
-
-                        </div>
-
-                    </div>
-                ))}
-            </Slider>
-
-            {/* BRAND LOGOS */}
-
-            <section className="bg-white py-14">
-
-                <h2 className="text-center text-gray-500 mb-10 font-semibold">
-                    Trusted by Global Brands
-                </h2>
-
-                <Slider {...brandSettings}>
-
-                    {brands.map((logo, i) => (
-                        <div key={i} className="flex justify-center">
-
-                            <img
-                                src={logo}
-                                className="h-10 opacity-70 hover:opacity-100"
-                            />
-
                         </div>
                     ))}
-
-                </Slider>
-
-            </section>
-
-            {/* STATS */}
-
-            <section className="py-16 bg-white">
-
-                <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 text-center gap-10">
-
-                    <div>
-                        <h2 className="text-3xl font-bold text-indigo-600">500+</h2>
-                        <p>Active Campaigns</p>
-                    </div>
-
-                    <div>
-                        <h2 className="text-3xl font-bold text-indigo-600">150+</h2>
-                        <p>Advertisers</p>
-                    </div>
-
-                    <div>
-                        <h2 className="text-3xl font-bold text-indigo-600">60K+</h2>
-                        <p>Viewers</p>
-                    </div>
-
-                    <div>
-                        <h2 className="text-3xl font-bold text-indigo-600">2M+</h2>
-                        <p>Ad Impressions</p>
-                    </div>
-
                 </div>
-
             </section>
 
-            {/* CATEGORIES */}
-
-            <section className="max-w-7xl mx-auto px-6 py-20">
-
-                <h2 className="text-4xl font-bold text-center mb-14">
-                    Explore Categories
-                </h2>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-
-                    {categories.map((cat, i) => (
-
-                        <motion.div
-                            whileHover={{ scale: 1.1 }}
-                            key={i}
-                            className="bg-white rounded-xl shadow-md hover:shadow-2xl p-10 text-center"
-                        >
-
-                            <div className="bg-indigo-100 text-indigo-600 w-16 h-16 mx-auto flex items-center justify-center rounded-full mb-4">
-                                {cat.icon}
-                            </div>
-
-                            <h3 className="font-semibold text-lg">
-                                {cat.name}
-                            </h3>
-
-                        </motion.div>
-
-                    ))}
-
-                </div>
-
-            </section>
-
-            {/* TRENDING ADS */}
-
-            <section className="bg-gray-100 py-20">
-
-                <div className="max-w-7xl mx-auto px-6">
-
-                    <h2 className="text-4xl font-bold text-center mb-14">
-                        Trending Advertisements
-                    </h2>
-
-                    <div className="grid md:grid-cols-3 gap-10">
-
-                        {ads.map((ad, i) => (
-
-                            <motion.div
-                                whileHover={{ y: -8 }}
-                                key={i}
-                                className="bg-white rounded-xl shadow-lg overflow-hidden"
-                            >
-
-                                <img
-                                    src={ad.img}
-                                    className="h-56 w-full object-cover"
-                                />
-
-                                <div className="p-6">
-
-                                    <h3 className="text-xl font-semibold">
-                                        {ad.title}
-                                    </h3>
-
-                                    <p className="text-gray-500">
-                                        {ad.brand}
-                                    </p>
-
-                                    <button className="mt-5 bg-indigo-600 text-white px-5 py-2 rounded-lg">
-                                        View Ad
-                                    </button>
-
-                                </div>
-
-                            </motion.div>
-
-                        ))}
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            {/* OFFERS */}
-
-            <section className="py-20">
-
-                <div className="max-w-7xl mx-auto px-6">
-
-                    <h2 className="text-4xl font-bold text-center mb-14">
-                        Special Offers
-                    </h2>
-
-                    <div className="grid md:grid-cols-3 gap-10">
-
-                        <div className="bg-gradient-to-r from-pink-500 to-red-500 text-white p-8 rounded-xl">
-                            <h3 className="text-2xl font-bold">50% OFF</h3>
-                            <p>Fashion Sale Campaign</p>
-                        </div>
-
-                        <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-8 rounded-xl">
-                            <h3 className="text-2xl font-bold">Buy 1 Get 1</h3>
-                            <p>Food Promotion</p>
-                        </div>
-
-                        <div className="bg-gradient-to-r from-green-500 to-teal-500 text-white p-8 rounded-xl">
-                            <h3 className="text-2xl font-bold">30% Discount</h3>
-                            <p>Electronics Campaign</p>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            {/* SURVEY */}
-
-            <section className="py-24 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-center">
-
-                <h2 className="text-4xl font-bold mb-6">
-                    Help Brands Improve
-                </h2>
-
-                <p className="max-w-2xl mx-auto text-lg">
-                    Participate in surveys and share your opinion about products.
-                </p>
-
-                <button className="mt-8 bg-white text-indigo-600 px-8 py-3 rounded-lg">
-                    Take Survey
-                </button>
-
-            </section>
-
-            {/* TESTIMONIALS */}
-
-            <section className="bg-gray-100 py-20">
-
-                <div className="max-w-6xl mx-auto px-6 text-center">
-
-                    <h2 className="text-4xl font-bold mb-14">
-                        What Advertisers Say
-                    </h2>
-
-                    <div className="grid md:grid-cols-3 gap-10">
-
-                        <div className="bg-white p-8 rounded-xl shadow">
-                            <p>"This platform helped us reach thousands of customers."</p>
-                            <h4 className="mt-4 font-semibold">Nike Marketing Manager</h4>
-                        </div>
-
-                        <div className="bg-white p-8 rounded-xl shadow">
-                            <p>"Our campaigns performed much better here."</p>
-                            <h4 className="mt-4 font-semibold">Apple Brand Head</h4>
-                        </div>
-
-                        <div className="bg-white p-8 rounded-xl shadow">
-                            <p>"Best advertising platform for targeting audiences."</p>
-                            <h4 className="mt-4 font-semibold">Samsung Marketing Lead</h4>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            {/* CTA */}
-
-            <section className="bg-gray-900 text-white py-20 text-center">
-
-                <h2 className="text-4xl font-bold mb-6">
-                    Discover Ads Tailored For You
-                </h2>
-
-                <p className="text-gray-300 mb-8">
-                    Browse campaigns from global brands.
-                </p>
-
-                <button className="bg-indigo-600 px-8 py-3 rounded-lg">
-                    Browse Ads
-                </button>
-
-            </section>
-
-            {/* FOOTER */}
-
-            <footer className="bg-gray-900 text-gray-300 pt-16 pb-8">
-
-                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-10">
-
-                    <div>
-                        <h3 className="text-white text-xl font-semibold mb-4">
-                            E-Advertise
-                        </h3>
-                        <p>
-                            A modern platform helping businesses promote products and
-                            reach targeted audiences.
+            {/* Categories */}
+            <section className="bg-white border-y border-slate-200">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
+                    <div className="text-center mb-10">
+                        <p className="text-indigo-600 font-medium text-sm">Categories</p>
+                        <h2 className="text-3xl font-bold text-slate-900 mt-1">
+                            Browse by Interest
+                        </h2>
+                        <p className="text-slate-500 mt-3 max-w-2xl mx-auto">
+                            Discover advertisements and promotions from categories you love most.
                         </p>
                     </div>
 
-                    <div>
-                        <h4 className="text-white mb-4">Quick Links</h4>
-                        <ul className="space-y-2">
-                            <li>Home</li>
-                            <li>Advertisements</li>
-                            <li>Categories</li>
-                            <li>Surveys</li>
-                            <li>Offers</li>
-                        </ul>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                        {categories.map((category, index) => (
+                            <div
+                                key={index}
+                                className="rounded-3xl border border-slate-200 bg-slate-50 p-6 hover:bg-white hover:shadow-md transition"
+                            >
+                                <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl">
+                                    {category.icon}
+                                </div>
+                                <h3 className="text-xl font-semibold text-slate-900 mt-5">
+                                    {category.name}
+                                </h3>
+                                <p className="text-slate-500 text-sm mt-2 leading-6">
+                                    {category.desc}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Top Offers */}
+            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
+                <div className="flex items-center gap-3 mb-8">
+                    <BadgePercent className="text-rose-500" />
+                    <h2 className="text-3xl font-bold text-slate-900">Top Offers</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {offers.map((offer, index) => (
+                        <div
+                            key={index}
+                            className={`rounded-3xl bg-gradient-to-r ${offer.color} p-6 text-white shadow-md`}
+                        >
+                            <p className="text-sm uppercase tracking-wide text-white/80">
+                                {offer.title}
+                            </p>
+                            <h3 className="text-2xl font-bold mt-3">{offer.discount}</h3>
+                            <button className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/20 transition">
+                                Grab Offer
+                                <ArrowRight size={16} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Surveys */}
+            <section className="bg-slate-950 text-white">
+                <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
+                    <div className="flex items-center gap-3 mb-8">
+                        <ClipboardList className="text-indigo-400" />
+                        <h2 className="text-3xl font-bold">Interactive Surveys</h2>
                     </div>
 
-                    <div>
-                        <h4 className="text-white mb-4">Advertisers</h4>
-                        <ul className="space-y-2">
-                            <li>Create Campaign</li>
-                            <li>Analytics</li>
-                            <li>Audience Targeting</li>
-                            <li>Budget Management</li>
-                        </ul>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {surveys.map((survey, index) => (
+                            <div
+                                key={index}
+                                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-6"
+                            >
+                                <h3 className="text-xl font-semibold">{survey.title}</h3>
+                                <p className="text-slate-300 text-sm mt-3 leading-6">
+                                    {survey.desc}
+                                </p>
+                                <button className="mt-5 inline-flex items-center gap-2 text-indigo-300 hover:text-indigo-200 font-medium transition">
+                                    Participate Now
+                                    <ArrowRight size={16} />
+                                </button>
+                            </div>
+                        ))}
                     </div>
+                </div>
+            </section>
 
-                    <div>
-                        <h4 className="text-white mb-4">Follow Us</h4>
-                        <div className="flex gap-4 text-xl">
-                            <FaFacebook />
-                            <FaInstagram />
-                            <FaTwitter />
-                            <FaLinkedin />
+            {/* Why Choose */}
+            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
+                <div className="text-center mb-10">
+                    <p className="text-indigo-600 font-medium text-sm">Why Choose Us</p>
+                    <h2 className="text-3xl font-bold text-slate-900 mt-1">
+                        Better Viewing Experience
+                    </h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                        {
+                            icon: <Layers3 size={22} />,
+                            title: "Relevant Promotions",
+                            desc: "See ads and offers based on your interests and categories."
+                        },
+                        {
+                            icon: <Gift size={22} />,
+                            title: "Exclusive Deals",
+                            desc: "Unlock limited-time discounts and exciting promotional rewards."
+                        },
+                        {
+                            icon: <ShieldCheck size={22} />,
+                            title: "Trusted Experience",
+                            desc: "Enjoy a secure, organized, and user-friendly platform experience."
+                        }
+                    ].map((item, index) => (
+                        <div
+                            key={index}
+                            className="rounded-3xl bg-white border border-slate-200 p-8 shadow-sm hover:shadow-md transition"
+                        >
+                            <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                {item.icon}
+                            </div>
+                            <h3 className="text-xl font-semibold text-slate-900 mt-5">
+                                {item.title}
+                            </h3>
+                            <p className="text-slate-500 text-sm leading-6 mt-3">
+                                {item.desc}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* CTA */}
+            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-16">
+                <div className="rounded-[2rem] bg-gradient-to-r from-indigo-600 to-violet-600 p-10 md:p-14 text-white shadow-xl">
+                    <div className="max-w-3xl">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 mb-5">
+                            <Star size={16} className="text-yellow-300" />
+                            <span className="text-sm font-medium">Stay updated with trending ads</span>
+                        </div>
+
+                        <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+                            Ready to explore more exciting campaigns and offers?
+                        </h2>
+
+                        <p className="mt-4 text-indigo-100 text-base leading-7">
+                            Browse active promotions, discover deals from top brands, and engage with content tailored to your preferences.
+                        </p>
+
+                        <div className="mt-8 flex flex-wrap gap-4">
+                            <button className="px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
+                                Browse Ads
+                            </button>
+                            <button className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition font-semibold">
+                                Explore Categories
+                            </button>
                         </div>
                     </div>
-
                 </div>
-
-                <div className="border-t border-gray-700 mt-12 pt-6 text-center">
-                    © 2026 E-Advertisement Platform
-                </div>
-
-            </footer>
-
-            {/* FLOATING AD */}
-
-            <div className="fixed bottom-6 right-6 bg-indigo-600 text-white px-6 py-4 rounded-lg shadow-lg">
-
-                🔥 Advertise your brand today!
-
-            </div>
-
+            </section>
         </div>
     );
-}
+};
+
+export default Home;

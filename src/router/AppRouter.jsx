@@ -3,10 +3,7 @@ import Login from "../components/Login";
 import Signup from "../components/Signup";
 import AdminLayout from "../layouts/AdminLayout";
 import AdvertiserLayout from "../layouts/AdvertiserLayout";
-import { ViewerNavbar } from "../components/viewer/ViewerNavbar";
-import { AdvertisementList } from "../components/viewer/AdvertisementList";
-import { UseEffectDemo } from "../components/viewer/UseEffectDemo";
-import { GetApiDemo } from "../components/viewer/GetApiDemo";
+import ViewerLayout from "../layouts/ViewerLayout";
 import Home from "../components/viewer/Home";
 import UserManagement from "../components/admin/UserManagement";
 import NotFound from "../pages/NotFound";
@@ -22,10 +19,16 @@ import AdminDashboard from "../components/admin/AdminDashboard";
 import AdvertiserDashboard from "../components/advertiser/AdvertiserDashboard";
 import { Forgotpassword } from "../components/ForgotPassword";
 import { ResetPassword } from "../components/ResetPassword";
+import Ads from "../components/viewer/Ads";
+import Categories from "../components/viewer/Categories";
+import Offers from "../components/viewer/Offers";
+import Surveys from "../components/viewer/Surveys";
+import About from "../components/viewer/About";
+import Contact from "../components/viewer/Contact";
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/login",
         element: <Login />
     },
     {
@@ -107,27 +110,41 @@ const router = createBrowserRouter([
         ]
     },
     {
-        path: "/viewer",
-        element:
-            <ProtectedRoutes userRoles={["viewer"]}>
-                <ViewerNavbar />
-            </ProtectedRoutes>,
+        path: "/",
+        element: <ViewerLayout />,
         children: [
             {
-                path: "advertisement",
-                element: <AdvertisementList />
-            },
-            {
-                path: "useEffect",
-                element: <UseEffectDemo />
-            },
-            {
-                path: "getapidemo",
-                element: <GetApiDemo />
-            },
-            {
-                path: "home",
+                index: true,
                 element: <Home />
+            },
+            {
+                path: "ads",
+                element: <Ads />
+            },
+            {
+                path: "categories",
+                element: <Categories />
+            },
+            {
+                path: "offers",
+                element: <Offers />
+            },
+            {
+                path: "about",
+                element: <About />
+            },
+            {
+                path: "contact",
+                element: <Contact />
+            },
+            {
+                element: <ProtectedRoutes userRoles={["viewer"]} />,
+                children: [
+                    {
+                        path: "surveys",
+                        element: <Surveys />
+                    }
+                ]
             }
         ]
     },

@@ -23,7 +23,7 @@ export default function Login() {
 
                 switch (res.data.role) {
                     case "viewer" || "Viewer":
-                        navigate("/viewer");
+                        navigate("/");
                         break;
                     case "advertiser" || "Advertiser":
                         navigate("/advertiser")
@@ -33,7 +33,7 @@ export default function Login() {
                         break;
                     default:
                         toast.error("Invalid Role");
-                        navigate("/")
+                        navigate("/login")
                         break;
                 }
             }
