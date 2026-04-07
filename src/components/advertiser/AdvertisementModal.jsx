@@ -8,7 +8,6 @@ import {
     FolderOpen,
     Target,
     Wallet,
-    CalendarDays,
     MonitorPlay,
     CircleCheck,
     Clock3,
@@ -225,6 +224,37 @@ function AdvertisementModal({ advertisementData, closeModal }) {
                                     )}
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Right */}
+                        <div className="space-y-5">
+                            {/* Content Preview */}
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    {advertisementData.ad_type == "Image" ? (
+                                        <ImageIcon size={18} className="text-violet-600" />
+                                    ) : (
+                                        <Video size={18} className="text-violet-600" />
+                                    )}
+                                    Content Preview
+                                </h3>
+
+                                <div className="rounded-2xl border border-slate-200 bg-slate-100 p-4 flex items-center justify-center min-h-[340px]">
+                                    {advertisementData.ad_type == "Image" ? (
+                                        <img
+                                            src={advertisementData.content}
+                                            alt={advertisementData.ad_title}
+                                            className="max-h-[420px] w-auto rounded-xl object-contain shadow-sm"
+                                        />
+                                    ) : (
+                                        <video
+                                            src={advertisementData.content}
+                                            controls
+                                            className="w-full max-h-[420px] rounded-xl"
+                                        />
+                                    )}
+                                </div>
+                            </div>
 
                             {/* Campaign Target Audience */}
                             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
@@ -272,37 +302,6 @@ function AdvertisementModal({ advertisementData, closeModal }) {
                                                 : "N/A"}
                                         </p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Right */}
-                        <div className="space-y-5">
-                            {/* Content Preview */}
-                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
-                                    {advertisementData.ad_type == "Image" ? (
-                                        <ImageIcon size={18} className="text-violet-600" />
-                                    ) : (
-                                        <Video size={18} className="text-violet-600" />
-                                    )}
-                                    Content Preview
-                                </h3>
-
-                                <div className="rounded-2xl border border-slate-200 bg-slate-100 p-4 flex items-center justify-center min-h-[340px]">
-                                    {advertisementData.ad_type == "Image" ? (
-                                        <img
-                                            src={advertisementData.content}
-                                            alt={advertisementData.ad_title}
-                                            className="max-h-[420px] w-auto rounded-xl object-contain shadow-sm"
-                                        />
-                                    ) : (
-                                        <video
-                                            src={advertisementData.content}
-                                            controls
-                                            className="w-full max-h-[420px] rounded-xl"
-                                        />
-                                    )}
                                 </div>
                             </div>
 
@@ -380,7 +379,6 @@ function AdvertisementModal({ advertisementData, closeModal }) {
                 </div>
             </div>
         </div>
-
     );
 }
 

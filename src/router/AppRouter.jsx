@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
 import Login from "../components/Login";
 import Signup from "../components/Signup";
 import AdminLayout from "../layouts/AdminLayout";
-import { AdvertiserSidebar } from "../components/advertiser/AdvertiserSidebar";
+import AdvertiserLayout from "../layouts/AdvertiserLayout";
 import { ViewerNavbar } from "../components/viewer/ViewerNavbar";
 import { AdvertisementList } from "../components/viewer/AdvertisementList";
 import { UseEffectDemo } from "../components/viewer/UseEffectDemo";
@@ -11,12 +11,15 @@ import Home from "../components/viewer/Home";
 import UserManagement from "../components/admin/UserManagement";
 import NotFound from "../pages/NotFound";
 import CampaignManagement from "../components/admin/CampaignManagement";
+import CampaignPage from "../components/advertiser/CampaignPage";
 import CategoryManagement from "../components/admin/CategoryManagement";
 import AdvertisementManagement from "../components/admin/AdvertisementManagement";
+import AdvertisementPage from "../components/advertiser/AdvertisementPage";
 import FeedbackPage from "../components/admin/FeedbackPage";
+import FeedbackComponent from "../components/advertiser/FeedbackComponent";
 import ProtectedRoutes from "../components/ProtectedRoutes";
-import AdBuilder from "../components/AdBuilder";
 import AdminDashboard from "../components/admin/AdminDashboard";
+import AdvertiserDashboard from "../components/advertiser/AdvertiserDashboard";
 import { Forgotpassword } from "../components/ForgotPassword";
 import { ResetPassword } from "../components/ResetPassword";
 
@@ -36,10 +39,6 @@ const router = createBrowserRouter([
     {
         path: "/resetpassword/:token",
         element: <ResetPassword />
-    },
-    {
-        path: "/adbuilder",
-        element: <AdBuilder />
     },
     {
         path: "/admin",
@@ -82,8 +81,30 @@ const router = createBrowserRouter([
         path: "/advertiser",
         element:
             <ProtectedRoutes userRoles={["advertiser"]}>
-                <AdvertiserSidebar />
+                <AdvertiserLayout />
             </ProtectedRoutes>,
+        children: [
+            {
+                index: true,
+                element: <Navigate to="/advertiser/dashboard" replace />
+            },
+            {
+                path: "dashboard",
+                element: <AdvertiserDashboard />
+            },
+            {
+                path: "feedbacks",
+                element: <FeedbackComponent />
+            },
+            {
+                path: "campaigns",
+                element: <CampaignPage />
+            },
+            {
+                path: "advertisements",
+                element: <AdvertisementPage />
+            }
+        ]
     },
     {
         path: "/viewer",
