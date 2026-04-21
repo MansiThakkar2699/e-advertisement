@@ -8,6 +8,8 @@ import {
     Clock3,
     Sparkles
 } from "lucide-react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -24,9 +26,26 @@ const Contact = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Contact form data:", formData);
+
+        try {
+            const response = await axios.post("/contact/contact", formData);
+            console.log("response", response);
+
+            if (response.status === 201) {
+                toast.success("Message sent successfully");
+
+                setFormData({
+                    fullName: "",
+                    email: "",
+                    subject: "",
+                    message: ""
+                });
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to send message");
+        }
     };
 
     return (

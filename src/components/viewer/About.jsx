@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Megaphone,
     Target,
@@ -9,6 +9,8 @@ import {
     Sparkles,
     ArrowRight
 } from "lucide-react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 const features = [
     {
@@ -33,14 +35,52 @@ const features = [
     }
 ];
 
-const stats = [
-    { value: "10K+", label: "Active Viewers" },
-    { value: "250+", label: "Campaigns" },
-    { value: "40+", label: "Categories" },
-    { value: "120+", label: "Surveys" }
-];
-
 const About = () => {
+
+    const [stats, setStats] = useState([]);
+    useEffect(() => {
+        fetchHomeStats();
+    }, []);
+
+    const formatCount = (value) => {
+        if (value >= 1000) {
+            return (value / 1000).toFixed(1) + "K+";
+        }
+        return value + "+";
+    };
+
+    const fetchHomeStats = async () => {
+        try {
+            const response = await axios.get("/viewer/home-stats");
+
+            const data = response.data.data;
+
+            const formattedStats = [
+                {
+                    label: "Active Viewers",
+                    value: formatCount(data.happyViewers)
+                },
+                {
+                    label: "Campaigns",
+                    value: formatCount(data.campaigns)
+                },
+                {
+                    label: "Categories",
+                    value: formatCount(data.topCategories)
+                },
+                {
+                    label: "Surveys",
+                    value: formatCount(data.interactiveSurveys)
+                }
+            ];
+
+            setStats(formattedStats);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
         <div className="w-full">
             {/* Hero */}
@@ -190,14 +230,17 @@ const About = () => {
                         </p>
 
                         <div className="mt-8 flex flex-wrap gap-4">
-                            <button className="px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
-                                Explore Ads
-                            </button>
-
-                            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition font-semibold">
-                                Contact Us
-                                <ArrowRight size={16} />
-                            </button>
+                            <Link to="/ads">
+                                <button className="px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
+                                    Explore Ads
+                                </button>
+                            </Link>
+                            <Link to="/contact">
+                                <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition font-semibold">
+                                    Contact Us
+                                    <ArrowRight size={16} />
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

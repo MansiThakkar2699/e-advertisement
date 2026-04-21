@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
-import { Navigate } from "react-router-dom"
+import { Navigate, Outlet } from "react-router-dom"
 
 const ProtectedRoutes = ({ children, userRoles }) => {
+
+    // const token = localStorage.getItem("token");
+    // const role = localStorage.getItem("role");
 
     const [token, settoken] = useState()
     const [role, setroles] = useState()
@@ -22,6 +25,6 @@ const ProtectedRoutes = ({ children, userRoles }) => {
     if (!userRoles.includes(role)) {
         return <Navigate to="/" />
     }
-    return children
+    return children ? children : <Outlet />;
 }
 export default ProtectedRoutes;

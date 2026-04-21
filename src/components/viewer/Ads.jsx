@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Search,
     SlidersHorizontal,
@@ -7,122 +7,147 @@ import {
     ArrowRight,
     Heart,
     Eye,
-    Tag
+    Tag,
 } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const adsData = [
-    {
-        id: 1,
-        title: "iPhone 15 Discount",
-        desc: "Get the latest iPhone with exclusive festive discounts and exchange offers.",
-        category: "Electronics",
-        type: "Image",
-        image:
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80",
-        brand: "Apple Zone",
-        views: 1240,
-        badge: "Trending"
-    },
-    {
-        id: 2,
-        title: "Fashion Fest Sale",
-        desc: "Upgrade your wardrobe with the newest styles and special offers.",
-        category: "Fashion",
-        type: "Image",
-        image:
-            "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
-        brand: "Urban Style",
-        views: 980,
-        badge: "Hot Deal"
-    },
-    {
-        id: 3,
-        title: "Travel Maldives Promo",
-        desc: "Plan your dream trip with luxury stays and discount packages.",
-        category: "Travel",
-        type: "Video",
-        image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-        brand: "TravelX",
-        views: 860,
-        badge: "Featured"
-    },
-    {
-        id: 4,
-        title: "Smart TV Weekend Offer",
-        desc: "Bring cinema home with top-brand TVs at limited-time prices.",
-        category: "Electronics",
-        type: "Image",
-        image:
-            "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=1200&q=80",
-        brand: "Vision Hub",
-        views: 730,
-        badge: "Limited"
-    },
-    {
-        id: 5,
-        title: "Food Combo Festival",
-        desc: "Try delicious combos and save more on your next order.",
-        category: "Food",
-        type: "Image",
-        image:
-            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-        brand: "FoodBox",
-        views: 670,
-        badge: "Popular"
-    },
-    {
-        id: 6,
-        title: "Beauty Essentials Launch",
-        desc: "Shop premium skincare and beauty kits with launch offers.",
-        category: "Beauty",
-        type: "Video",
-        image:
-            "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
-        brand: "Glow Studio",
-        views: 540,
-        badge: "New"
-    }
-];
-
-const categories = ["All", "Electronics", "Fashion", "Travel", "Food", "Beauty"];
 const adTypes = ["All", "Image", "Video"];
 const sortOptions = ["Newest", "Most Viewed", "A-Z"];
 
 const Ads = () => {
     const [search, setSearch] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
     const [selectedType, setSelectedType] = useState("All");
     const [sortBy, setSortBy] = useState("Newest");
+    const [ads, setAds] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchParams] = useSearchParams();
+    const categoryFromUrl = searchParams.get("category");
+    const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl || "All");
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchAds();
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        if (categoryFromUrl) {
+            setSelectedCategory(categoryFromUrl);
+        }
+    }, [categoryFromUrl]);
+
+    useEffect(() => {
+        const recordAdImpressions = async () => {
+            try {
+                for (const ad of ads) {
+                    await axios.post(`/analytics/analytics/impression/${ad._id}`);
+                }
+            } catch (error) {
+                console.log("Error recording ad impressions:", error);
+            }
+        };
+
+        if (ads?.length > 0) {
+            recordAdImpressions();
+        }
+    }, [ads]);
+
+    const fetchAds = async () => {
+        try {
+            setLoading(true);
+            // Calling your backend API
+            const response = await axios.get('/ads/active-ads');
+
+            // If you only want the first 3 on the frontend:
+            const data = response.data.data || response.data; // Adjust based on your API structure
+            setAds(data);
+            setLoading(false);
+            console.log("data", data)
+        } catch (err) {
+            console.error("Error fetching ads:", err);
+            setError("Failed to load advertisements.");
+            setLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            setLoading(true);
+            // Calling your backend API
+            const response = await axios.get('/category/active-category');
+
+            // If you only want the first 3 on the frontend:
+            const data = response.data.data || response.data; // Adjust based on your API structure
+            setCategories(data);
+            setLoading(false);
+        } catch (err) {
+            console.error("Error fetching categories:", err);
+            setError("Failed to load categories.");
+            setLoading(false);
+        }
+    }
 
     const filteredAds = useMemo(() => {
-        let filtered = [...adsData];
+        console.log("selectedCategory :", selectedCategory)
+        let filtered = [...ads];
 
         if (search.trim()) {
             filtered = filtered.filter(
                 (ad) =>
-                    ad.title.toLowerCase().includes(search.toLowerCase()) ||
-                    ad.brand.toLowerCase().includes(search.toLowerCase()) ||
-                    ad.category.toLowerCase().includes(search.toLowerCase())
+                    ad.ad_title.toLowerCase().includes(search.toLowerCase())
+                //ad.brand.toLowerCase().includes(search.toLowerCase()) ||
+                //ad.category.toLowerCase().includes(search.toLowerCase())
             );
         }
 
         if (selectedCategory !== "All") {
-            filtered = filtered.filter((ad) => ad.category === selectedCategory);
+            filtered = filtered.filter((ad) => ad.category_id._id === selectedCategory);
         }
 
-        if (selectedType !== "All") {
-            filtered = filtered.filter((ad) => ad.type === selectedType);
-        }
+        // if (selectedType !== "All") {
+        //     filtered = filtered.filter((ad) => ad.ad_type === selectedType);
+        // }
 
-        if (sortBy === "Most Viewed") {
-            filtered.sort((a, b) => b.views - a.views);
-        } else if (sortBy === "A-Z") {
-            filtered.sort((a, b) => a.title.localeCompare(b.title));
-        }
-
+        // if (sortBy === "Most Viewed") {
+        //     filtered.sort((a, b) => b.views - a.views);
+        // } else if (sortBy === "A-Z") {
+        //     filtered.sort((a, b) => a.title.localeCompare(b.title));
+        // }
+        console.log("filtered : ", filtered)
         return filtered;
-    }, [search, selectedCategory, selectedType, sortBy]);
+    }, [ads, search, selectedCategory]);
+    //[search, selectedCategory, selectedType, sortBy]
+
+    const handleViewDetails = async (ad) => {
+        try {
+            await axios.post(`/analytics/analytics/click/${ad._id}`);
+            navigate(`/ads/${ad._id}`);
+        } catch (error) {
+            console.log("Error recording view details click:", error);
+        }
+    };
+
+    const handleExplore = async (ad) => {
+        try {
+            await axios.post(`/analytics/analytics/click/${ad._id}`);
+
+            if (ad.redirect_url) {
+                window.open(ad.redirect_url, "_blank");
+            } else {
+                navigate(`/ads/${ad._id}`);
+            }
+        } catch (error) {
+            console.log("Error recording explore click:", error);
+        }
+    };
+
+    if (loading) return <p>Loading ads...</p>;
+    if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
     return (
         <div className="w-full">
@@ -175,15 +200,16 @@ const Ads = () => {
                                 onChange={(e) => setSelectedCategory(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                             >
-                                {categories.map((item) => (
-                                    <option key={item} value={item}>
-                                        {item} Category
+                                <option value="All">All</option>
+                                {categories.map((category) => (
+                                    <option key={category._id} value={category._id}>
+                                        {category.name}
                                     </option>
                                 ))}
                             </select>
 
                             {/* Type */}
-                            <select
+                            {/* <select
                                 value={selectedType}
                                 onChange={(e) => setSelectedType(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
@@ -193,10 +219,10 @@ const Ads = () => {
                                         {item} Type
                                     </option>
                                 ))}
-                            </select>
+                            </select> */}
                         </div>
 
-                        <div className="mt-4 flex justify-end">
+                        {/* <div className="mt-4 flex justify-end">
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
@@ -208,7 +234,7 @@ const Ads = () => {
                                     </option>
                                 ))}
                             </select>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </section>
@@ -232,24 +258,24 @@ const Ads = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {filteredAds.map((ad) => (
                             <div
-                                key={ad.id}
+                                key={ad._id}
                                 className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
                             >
                                 <div className="relative h-64 overflow-hidden">
                                     <img
-                                        src={ad.image}
-                                        alt={ad.title}
+                                        src={ad.content}
+                                        alt={ad.ad_title}
                                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                     />
 
                                     <div className="absolute top-4 left-4 flex items-center gap-2">
-                                        <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-800">
+                                        {/* <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-800">
                                             {ad.badge}
-                                        </span>
+                                        </span> */}
 
                                         <span className="px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-sm text-xs font-medium text-white inline-flex items-center gap-1">
-                                            {ad.type === "Image" ? <ImageIcon size={12} /> : <Video size={12} />}
-                                            {ad.type}
+                                            {ad.ad_type === "Image" ? <ImageIcon size={12} /> : <Video size={12} />}
+                                            {ad.ad_type}
                                         </span>
                                     </div>
 
@@ -261,34 +287,38 @@ const Ads = () => {
                                 <div className="p-6">
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="inline-flex px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium">
-                                            {ad.category}
+                                            {ad.category_id.name}
                                         </span>
 
-                                        <div className="flex items-center gap-1 text-sm text-slate-500">
+                                        {/* <div className="flex items-center gap-1 text-sm text-slate-500">
                                             <Eye size={14} />
                                             {ad.views}
-                                        </div>
+                                        </div> */}
                                     </div>
 
                                     <h3 className="text-xl font-semibold text-slate-900 mt-4">
-                                        {ad.title}
+                                        {ad.ad_title}
                                     </h3>
 
-                                    <p className="text-sm text-slate-500 mt-2">
+                                    {/* <p className="text-sm text-slate-500 mt-2">
                                         by <span className="font-medium text-slate-700">{ad.brand}</span>
-                                    </p>
+                                    </p> */}
 
                                     <p className="text-slate-600 text-sm leading-6 mt-4">
-                                        {ad.desc}
+                                        {ad.description ? ad.description : "No Description"}
                                     </p>
 
                                     <div className="mt-6 flex items-center justify-between">
-                                        <button className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition">
+                                        <button
+                                            onClick={() => handleViewDetails(ad)}
+                                            className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition"
+                                        >
                                             View Details
-                                            <ArrowRight size={16} />
                                         </button>
-
-                                        <button className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition">
+                                        <button
+                                            onClick={() => handleExplore(ad)}
+                                            className="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition"
+                                        >
                                             Explore
                                         </button>
                                     </div>

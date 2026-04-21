@@ -25,7 +25,9 @@ import {
     CirclePause,
     CheckCheck,
     CircleX,
-    Ban
+    Ban,
+    BadgePercent,
+    CalendarDays
 } from "lucide-react";
 
 const createId = () => Date.now().toString() + Math.random().toString(36).slice(2);
@@ -58,6 +60,9 @@ const AdvertisementBuilderModal = ({
     const [categoryId, setCategoryId] = useState("");
     const [campaignId, setCampaignId] = useState("");
     const [customCategory, setCustomCategory] = useState("");
+    const [offerTitle, setOfferTitle] = useState("");
+    const [offerValue, setOfferValue] = useState("");
+    const [offerExpiry, setOfferExpiry] = useState("");
 
     const [openCategoryDropdown, setOpenCategoryDropdown] = useState(false);
     const [openCampaignDropdown, setOpenCampaignDropdown] = useState(false);
@@ -104,6 +109,13 @@ const AdvertisementBuilderModal = ({
             setCustomCategory(advertisementData?.custom_category || "");
             setCanvas(advertisementData?.design_json?.canvas || defaultCanvas);
             setElements(advertisementData?.design_json?.elements || []);
+            setOfferTitle(advertisementData?.offer?.title || "");
+            setOfferValue(advertisementData?.offer?.value || "");
+            setOfferExpiry(
+                advertisementData?.offer?.expiry
+                    ? new Date(advertisementData.offer.expiry).toISOString().split("T")[0]
+                    : ""
+            );
         } else if (mode === "add") {
             setAdTitle("");
             setDescription("");
@@ -112,6 +124,9 @@ const AdvertisementBuilderModal = ({
             setCustomCategory("");
             setCanvas(defaultCanvas);
             setElements([]);
+            setOfferTitle("");
+            setOfferValue("");
+            setOfferExpiry("");
         }
 
         setSelectedId(null);
@@ -507,6 +522,9 @@ const AdvertisementBuilderModal = ({
             formData.append("ad_type", "Image");
             formData.append("design_json", JSON.stringify({ canvas, elements }));
             formData.append("content", imageBlob, `${adTitle || "advertisement"}.jpg`);
+            formData.append("offer[title]", offerTitle || "");
+            formData.append("offer[value]", offerValue || "");
+            formData.append("offer[expiry]", offerExpiry || "");
 
             let response;
 
@@ -684,6 +702,44 @@ const AdvertisementBuilderModal = ({
                                             </p>
                                             <p className="mt-1 text-base font-semibold text-slate-800">
                                                 {advertisementData?.description || "No description"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                    <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                        <BadgePercent size={18} className="text-rose-600" />
+                                        Offer Information
+                                    </h3>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                        <div>
+                                            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                                Offer Title
+                                            </p>
+                                            <p className="mt-1 text-base font-semibold text-slate-800">
+                                                {advertisementData?.offer?.title || "N/A"}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                                Offer Value
+                                            </p>
+                                            <p className="mt-1 text-base font-semibold text-slate-800">
+                                                {advertisementData?.offer?.value || "N/A"}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                                Offer Expiry
+                                            </p>
+                                            <p className="mt-1 text-base font-semibold text-slate-800">
+                                                {advertisementData?.offer?.expiry
+                                                    ? new Date(advertisementData.offer.expiry).toLocaleDateString()
+                                                    : "N/A"}
                                             </p>
                                         </div>
                                     </div>
@@ -941,6 +997,56 @@ const AdvertisementBuilderModal = ({
                                         placeholder="Enter advertisement description"
                                         className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none resize-none"
                                     />
+                                </div>
+
+                                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                                    <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-4">
+                                        <BadgePercent size={16} className="text-rose-600" />
+                                        Offer Information
+                                    </h3>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                                Offer Title
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={offerTitle}
+                                                onChange={(e) => setOfferTitle(e.target.value)}
+                                                placeholder="e.g. Festive Deal"
+                                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                                Offer Value
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={offerValue}
+                                                onChange={(e) => setOfferValue(e.target.value)}
+                                                placeholder="e.g. Up to 25% Off"
+                                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                                Offer Expiry
+                                            </label>
+                                            <div className="relative">
+                                                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                                                <input
+                                                    type="date"
+                                                    value={offerExpiry}
+                                                    onChange={(e) => setOfferExpiry(e.target.value)}
+                                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="relative" ref={categoryDropdownRef}>

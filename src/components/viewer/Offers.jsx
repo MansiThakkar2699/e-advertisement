@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Search,
     BadgePercent,
@@ -8,100 +8,122 @@ import {
     TicketPercent,
     Sparkles
 } from "lucide-react";
-
-const offersData = [
-    {
-        id: 1,
-        title: "Weekend Electronics Sale",
-        discount: "Up to 50% Off",
-        type: "Discount",
-        brand: "Tech World",
-        expiry: "Ends in 2 days",
-        image:
-            "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80",
-        desc: "Grab exciting deals on mobiles, laptops, accessories, and smart gadgets."
-    },
-    {
-        id: 2,
-        title: "Fashion Fest Combo Offer",
-        discount: "Buy 1 Get 1 Free",
-        type: "Combo",
-        brand: "Urban Style",
-        expiry: "Ends tomorrow",
-        image:
-            "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
-        desc: "Shop trendy outfits and enjoy limited-time combo offers across collections."
-    },
-    {
-        id: 3,
-        title: "Travel Holiday Cashback",
-        discount: "20% Cashback",
-        type: "Cashback",
-        brand: "TravelX",
-        expiry: "Ends in 4 days",
-        image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-        desc: "Book your holiday package now and get instant cashback on selected trips."
-    },
-    {
-        id: 4,
-        title: "Food Combo Festival",
-        discount: "Flat 30% Off",
-        type: "Discount",
-        brand: "FoodBox",
-        expiry: "Ends in 1 day",
-        image:
-            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-        desc: "Order delicious meals and unlock savings on your favorite food combos."
-    },
-    {
-        id: 5,
-        title: "Beauty Launch Offer",
-        discount: "Free Gift Included",
-        type: "Gift",
-        brand: "Glow Studio",
-        expiry: "Ends in 3 days",
-        image:
-            "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
-        desc: "Explore skincare and beauty launches with premium complimentary gifts."
-    },
-    {
-        id: 6,
-        title: "Home Decor Fest",
-        discount: "Save up to 40%",
-        type: "Discount",
-        brand: "HomeNest",
-        expiry: "Ends in 5 days",
-        image:
-            "https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=1200&q=80",
-        desc: "Upgrade your living space with decorative items and modern furniture deals."
-    }
-];
+import axios from "axios";
+import { formatDistanceToNowStrict, isAfter } from 'date-fns';
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const offerTypes = ["All", "Discount", "Combo", "Cashback", "Gift"];
 
 const Offers = () => {
     const [search, setSearch] = useState("");
-    const [selectedType, setSelectedType] = useState("All");
+    const [ads, setAds] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    // const [selectedType, setSelectedType] = useState("All");
+    const gridRef = React.useRef(null);
+    const navigate = useNavigate();
+
+    const scrollToOffers = () => {
+        gridRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        fetchAds();
+    }, []);
+
+    useEffect(() => {
+        const recordOfferImpressions = async () => {
+            try {
+                for (const offer of ads) {
+                    await axios.post(`/analytics/analytics/impression/${offer._id}`);
+                }
+            } catch (error) {
+                console.log("Error recording offer impressions:", error);
+            }
+        };
+
+        if (ads?.length > 0) {
+            recordOfferImpressions();
+        }
+    }, [ads]);
 
     const filteredOffers = useMemo(() => {
-        let filtered = [...offersData];
+        let filtered = [...ads];
 
         if (search.trim()) {
             filtered = filtered.filter(
                 (offer) =>
-                    offer.title.toLowerCase().includes(search.toLowerCase()) ||
-                    offer.brand.toLowerCase().includes(search.toLowerCase()) ||
-                    offer.type.toLowerCase().includes(search.toLowerCase())
+                    offer.ad_title.toLowerCase().includes(search.toLowerCase())
+                // offer.brand.toLowerCase().includes(search.toLowerCase()) ||
+                // offer.type.toLowerCase().includes(search.toLowerCase())
             );
         }
 
-        if (selectedType !== "All") {
-            filtered = filtered.filter((offer) => offer.type === selectedType);
-        }
+        // if (selectedType !== "All") {
+        //     filtered = filtered.filter((offer) => offer.type === selectedType);
+        // }
 
         return filtered;
-    }, [search, selectedType]);
+    }, [search, ads]);
+
+    const fetchAds = async () => {
+        try {
+            setLoading(true);
+            // Calling your backend API
+            const response = await axios.get('/ads/active-ads');
+
+            // If you only want the first 3 on the frontend:
+            const data = response.data.data || response.data; // Adjust based on your API structure
+            setAds(data);
+            setLoading(false);
+            console.log("data", data)
+        } catch (err) {
+            console.error("Error fetching ads:", err);
+            setError("Failed to load advertisements.");
+            setLoading(false);
+        }
+    };
+
+    function formatExpiry(mongodbDate) {
+        const expiryDate = new Date(mongodbDate);
+        const now = new Date();
+
+        if (!isAfter(expiryDate, now)) {
+            return "Expired";
+        }
+
+        // formatDistanceToNowStrict returns "2 days"
+        const distance = formatDistanceToNowStrict(expiryDate, { unit: 'day' });
+
+        return `Ends in ${distance}`;
+    }
+
+    const handleViewOffer = async (offer) => {
+        try {
+            await axios.post(`/analytics/analytics/click/${offer._id}`);
+            navigate(`/ads/${offer._id}`);
+        } catch (error) {
+            console.log("Error recording view offer click:", error);
+        }
+    };
+
+    const handleClaim = async (offer) => {
+        try {
+            await axios.post(`/analytics/analytics/conversion/${offer._id}`);
+            toast.success("Offer claimed successfully");
+
+            if (offer.redirect_url) {
+                window.open(offer.redirect_url, "_blank");
+            }
+        } catch (error) {
+            console.log("Error recording claim conversion:", error);
+        }
+    };
+
+    if (loading) return <p>Loading ads...</p>;
+    if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
     return (
         <div className="w-full">
@@ -135,8 +157,16 @@ const Offers = () => {
                             <h2 className="text-lg font-semibold text-slate-900">Find Offers</h2>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="relative md:col-span-2">
+                        <div className="relative grid grid-cols-1 gap-4">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                            <input
+                                type="text"
+                                placeholder="Search offers..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                            />
+                            {/* <div className="relative md:col-span-2">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                                 <input
                                     type="text"
@@ -145,9 +175,9 @@ const Offers = () => {
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
                                 />
-                            </div>
+                            </div> */}
 
-                            <select
+                            {/* <select
                                 value={selectedType}
                                 onChange={(e) => setSelectedType(e.target.value)}
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
@@ -157,7 +187,7 @@ const Offers = () => {
                                         {type} Offers
                                     </option>
                                 ))}
-                            </select>
+                            </select> */}
                         </div>
                     </div>
                 </div>
@@ -183,7 +213,8 @@ const Offers = () => {
                             brands through our latest campaigns and promotions.
                         </p>
 
-                        <button className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-rose-600 font-semibold hover:bg-slate-100 transition">
+                        <button onClick={scrollToOffers}
+                            className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-rose-600 font-semibold hover:bg-slate-100 transition">
                             Explore Featured Deals
                             <ArrowRight size={16} />
                         </button>
@@ -192,7 +223,7 @@ const Offers = () => {
             </section>
 
             {/* Offers Grid */}
-            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-16">
+            <section ref={gridRef} className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-16">
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <p className="text-indigo-600 text-sm font-medium">Offers</p>
@@ -214,55 +245,60 @@ const Offers = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {filteredOffers.map((offer) => (
                             <div
-                                key={offer.id}
+                                key={offer._id}
                                 className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
                             >
                                 <div className="relative h-60 overflow-hidden">
                                     <img
-                                        src={offer.image}
-                                        alt={offer.title}
+                                        src={offer.content}
+                                        alt={offer.ad_title}
                                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                     />
 
-                                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                                    {/* <div className="absolute top-4 left-4 flex items-center gap-2">
                                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-800">
                                             <TicketPercent size={12} className="text-rose-500" />
                                             {offer.type}
                                         </span>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <div className="p-6">
                                     <div className="flex items-center justify-between gap-3">
                                         <span className="inline-flex px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-medium">
-                                            {offer.discount}
+                                            {offer.offer.value}
                                         </span>
 
                                         <div className="flex items-center gap-1 text-sm text-slate-500">
                                             <Clock3 size={14} />
-                                            {offer.expiry}
+                                            {formatExpiry(offer.offer.expiry)}
                                         </div>
                                     </div>
 
                                     <h3 className="text-xl font-semibold text-slate-900 mt-4">
-                                        {offer.title}
+                                        {offer.ad_title}
                                     </h3>
 
                                     <p className="text-sm text-slate-500 mt-2">
-                                        by <span className="font-medium text-slate-700">{offer.brand}</span>
+                                        by <span className="font-medium text-slate-700">{offer.campaign_id.advertiser_id.fullName}</span>
                                     </p>
 
                                     <p className="text-slate-600 text-sm leading-6 mt-4">
-                                        {offer.desc}
+                                        {offer.description ? offer.description : "No Description"}
                                     </p>
 
                                     <div className="mt-6 flex items-center justify-between">
-                                        <button className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition">
-                                            View Offer
-                                            <ArrowRight size={16} />
-                                        </button>
 
-                                        <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition">
+                                        <button
+                                            onClick={() => handleViewOffer(offer)}
+                                            className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition"
+                                        >
+                                            View Offer
+                                        </button>
+                                        <button
+                                            onClick={() => handleClaim(offer)}
+                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition"
+                                        >
                                             <Gift size={15} />
                                             Claim
                                         </button>

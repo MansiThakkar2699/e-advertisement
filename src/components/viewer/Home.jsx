@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     ArrowRight,
     BadgePercent,
@@ -8,75 +8,18 @@ import {
     Star,
     ClipboardList,
     Gift,
-    ShieldCheck
+    ShieldCheck,
+    Tag
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const featuredAds = [
-    {
-        id: 1,
-        title: "iPhone 15 Pro Offer",
-        desc: "Get exciting exchange bonuses and limited-time discounts.",
-        image:
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1000&q=80",
-        tag: "Electronics"
-    },
-    {
-        id: 2,
-        title: "Fashion Mega Sale",
-        desc: "Discover trendy outfits with up to 60% off this weekend.",
-        image:
-            "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=80",
-        tag: "Fashion"
-    },
-    {
-        id: 3,
-        title: "Travel to Maldives",
-        desc: "Book now and unlock special holiday packages.",
-        image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80",
-        tag: "Travel"
-    }
-];
-
-const categories = [
-    {
-        name: "Electronics",
-        icon: "📱",
-        desc: "Smart gadgets and latest tech deals"
-    },
-    {
-        name: "Fashion",
-        icon: "👗",
-        desc: "Trending outfits and style collections"
-    },
-    {
-        name: "Food",
-        icon: "🍔",
-        desc: "Yummy offers from top food brands"
-    },
-    {
-        name: "Travel",
-        icon: "✈️",
-        desc: "Holiday packages and destination offers"
-    }
-];
-
-const offers = [
-    {
-        title: "Weekend Deal",
-        discount: "Up to 50% Off",
-        color: "from-pink-500 to-rose-500"
-    },
-    {
-        title: "Flash Sale",
-        discount: "Buy 1 Get 1 Free",
-        color: "from-indigo-500 to-violet-500"
-    },
-    {
-        title: "Exclusive Promo",
-        discount: "Extra 20% Cashback",
-        color: "from-emerald-500 to-teal-500"
-    }
+const cardColors = [
+    "from-pink-500 to-rose-500",
+    "from-indigo-500 to-violet-500",
+    "from-emerald-500 to-teal-500"
 ];
 
 const surveys = [
@@ -91,6 +34,152 @@ const surveys = [
 ];
 
 const Home = () => {
+    const navigate = useNavigate();
+
+    const [stats, setStats] = useState([]);
+    const [ads, setAds] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchHomeStats();
+        fetchAds();
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        const recordFeaturedAdImpressions = async () => {
+            try {
+                for (const ad of ads) {
+                    await axios.post(`/analytics/analytics/impression/${ad._id}`);
+                }
+            } catch (error) {
+                console.log("Error recording featured ad impressions:", error);
+            }
+        };
+
+        if (ads?.length > 0) {
+            recordFeaturedAdImpressions();
+        }
+    }, [ads]);
+
+    useEffect(() => {
+        const recordOfferImpressions = async () => {
+            try {
+                for (const offer of ads) {
+                    await axios.post(`/analytics/analytics/impression/${offer._id}`);
+                }
+            } catch (error) {
+                console.log("Error recording offer impressions:", error);
+            }
+        };
+
+        if (ads?.length > 0) {
+            recordOfferImpressions();
+        }
+    }, [ads]);
+
+    const formatCount = (value) => {
+        if (value >= 1000) {
+            return (value / 1000).toFixed(1) + "K+";
+        }
+        return value + "+";
+    };
+
+    const fetchHomeStats = async () => {
+        try {
+            const response = await axios.get("/viewer/home-stats");
+
+            const data = response.data.data;
+
+            const formattedStats = [
+                {
+                    label: "Active Promotions",
+                    value: formatCount(data.activePromotions)
+                },
+                {
+                    label: "Top Categories",
+                    value: formatCount(data.topCategories)
+                },
+                {
+                    label: "Happy Viewers",
+                    value: formatCount(data.happyViewers)
+                },
+                {
+                    label: "Interactive Surveys",
+                    value: formatCount(data.interactiveSurveys)
+                }
+            ];
+
+            setStats(formattedStats);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const fetchAds = async () => {
+        try {
+            setLoading(true);
+            // Calling your backend API
+            const response = await axios.get('/ads/active-ads');
+
+            // If you only want the first 3 on the frontend:
+            const data = response.data.data || response.data; // Adjust based on your API structure
+            setAds(data.slice(0, 3));
+            setLoading(false);
+            console.log("data : ", data.slice(0, 3))
+        } catch (err) {
+            console.error("Error fetching ads:", err);
+            setError("Failed to load advertisements.");
+            setLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            setLoading(true);
+            // Calling your backend API
+            const response = await axios.get('/category/active-category');
+
+            // If you only want the first 3 on the frontend:
+            const data = response.data.data || response.data; // Adjust based on your API structure
+            setCategories(data.slice(0, 3));
+            setLoading(false);
+            console.log("data : ", data.slice(0, 3))
+        } catch (err) {
+            console.error("Error fetching categories:", err);
+            setError("Failed to load categories.");
+            setLoading(false);
+        }
+    }
+
+    const handleExploreNow = async (ad) => {
+        try {
+            await axios.post(`/analytics/analytics/click/${ad._id}`);
+            navigate(`/ads/${ad._id}`);
+        } catch (error) {
+            console.log("Error recording click:", error);
+        }
+    };
+
+    const handleClaimOffer = async (ad) => {
+        try {
+            await axios.post(`/analytics/analytics/conversion/${ad._id}`);
+            toast.success("Offer claimed successfully");
+
+            if (ad.offer.redirect_url) {
+                window.open(ad.offer.redirect_url, "_blank");
+            }
+        } catch (error) {
+            console.log("Error recording conversion:", error);
+        }
+    };
+
+    if (loading) return <p>Loading ads...</p>;
+    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
     return (
         <div className="w-full">
             {/* Hero Section */}
@@ -123,14 +212,18 @@ const Home = () => {
                         </p>
 
                         <div className="mt-8 flex flex-wrap gap-4">
-                            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 transition shadow-lg font-medium">
-                                Explore Ads
-                                <ArrowRight size={18} />
-                            </button>
+                            <Link to="/ads">
+                                <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 transition shadow-lg font-medium">
+                                    Explore Ads
+                                    <ArrowRight size={18} />
+                                </button>
+                            </Link>
 
-                            <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm transition font-medium">
-                                View Offers
-                            </button>
+                            <Link to="/offers">
+                                <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm transition font-medium">
+                                    View Offers
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -140,12 +233,7 @@ const Home = () => {
             <section className="relative -mt-10 z-10">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                            { label: "Active Promotions", value: "250+" },
-                            { label: "Top Categories", value: "40+" },
-                            { label: "Happy Viewers", value: "10K+" },
-                            { label: "Interactive Surveys", value: "120+" }
-                        ].map((item, index) => (
+                        {stats.map((item, index) => (
                             <div
                                 key={index}
                                 className="bg-white rounded-2xl shadow-md border border-slate-200 p-5 text-center"
@@ -167,39 +255,40 @@ const Home = () => {
                             Trending Promotions
                         </h2>
                     </div>
-                    <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition">
-                        View All
-                    </button>
+                    <Link to="/ads">
+                        <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition">
+                            View All
+                        </button>
+                    </Link>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {featuredAds.map((ad) => (
+                    {ads.map((ad) => (
                         <div
-                            key={ad.id}
-                            className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
-                        >
+                            key={ad._id}
+                            className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300">
                             <div className="h-60 overflow-hidden">
                                 <img
-                                    src={ad.image}
-                                    alt={ad.title}
+                                    src={ad.content}
+                                    alt={ad.ad_title}
                                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                 />
                             </div>
 
                             <div className="p-6">
                                 <span className="inline-flex px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium">
-                                    {ad.tag}
+                                    {ad.category_id.name}
                                 </span>
 
                                 <h3 className="text-xl font-semibold text-slate-900 mt-4">
-                                    {ad.title}
+                                    {ad.ad_title}
                                 </h3>
 
                                 <p className="text-slate-500 text-sm leading-6 mt-3">
-                                    {ad.desc}
+                                    {ad.description ? ad.description : "No Description"}
                                 </p>
-
-                                <button className="mt-5 inline-flex items-center gap-2 text-indigo-600 font-medium hover:text-indigo-700 transition">
+                                <button onClick={() => handleExploreNow(ad)}
+                                    className="mt-5 inline-flex items-center gap-2 text-indigo-600 font-medium hover:text-indigo-700 transition">
                                     Explore Now
                                     <ArrowRight size={16} />
                                 </button>
@@ -210,9 +299,9 @@ const Home = () => {
             </section>
 
             {/* Categories */}
-            <section className="bg-white border-y border-slate-200">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
-                    <div className="text-center mb-10">
+            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
                         <p className="text-indigo-600 font-medium text-sm">Categories</p>
                         <h2 className="text-3xl font-bold text-slate-900 mt-1">
                             Browse by Interest
@@ -222,24 +311,43 @@ const Home = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                        {categories.map((category, index) => (
-                            <div
-                                key={index}
-                                className="rounded-3xl border border-slate-200 bg-slate-50 p-6 hover:bg-white hover:shadow-md transition"
-                            >
-                                <div className="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl">
-                                    {category.icon}
-                                </div>
+                    <Link to="/categories">
+                        <button className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition">
+                            View All
+                        </button>
+                    </Link>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {categories.map((category) => (
+                        <div
+                            key={category._id}
+                            className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300">
+                            <div className="h-60 overflow-hidden">
+                                {
+                                    category.image ? (<img
+                                        src={category.image}
+                                        alt={category.name}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                                    />) : (
+                                        <div className="flex flex-col items-center justify-center text-slate-600">
+                                            <Tag size={210} strokeWidth={1.5} />
+                                            <span className="text-sm mt-2 font-medium uppercase tracking-wider">No Image</span>
+                                        </div>
+                                    )
+                                }
+
+                            </div>
+                            <div className="p-6">
                                 <h3 className="text-xl font-semibold text-slate-900 mt-5">
                                     {category.name}
                                 </h3>
                                 <p className="text-slate-500 text-sm mt-2 leading-6">
-                                    {category.desc}
+                                    {category.description ? category.description : "No Description"}
                                 </p>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             </section>
 
@@ -251,16 +359,17 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {offers.map((offer, index) => (
+                    {ads.map((ad, index) => (
                         <div
                             key={index}
-                            className={`rounded-3xl bg-gradient-to-r ${offer.color} p-6 text-white shadow-md`}
+                            className={`rounded-3xl bg-gradient-to-r ${cardColors[index % cardColors.length]} p-6 text-white shadow-md`}
                         >
                             <p className="text-sm uppercase tracking-wide text-white/80">
-                                {offer.title}
+                                {ad.offer.title}
                             </p>
-                            <h3 className="text-2xl font-bold mt-3">{offer.discount}</h3>
-                            <button className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/20 transition">
+                            <h3 className="text-2xl font-bold mt-3">{ad.offer.value}</h3>
+                            <button onClick={() => handleClaimOffer(ad)}
+                                className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/20 transition">
                                 Grab Offer
                                 <ArrowRight size={16} />
                             </button>
@@ -360,12 +469,17 @@ const Home = () => {
                         </p>
 
                         <div className="mt-8 flex flex-wrap gap-4">
-                            <button className="px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
-                                Browse Ads
-                            </button>
-                            <button className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition font-semibold">
-                                Explore Categories
-                            </button>
+                            <Link to="/ads">
+                                <button className="px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
+                                    Browse Ads
+                                </button>
+                            </Link>
+
+                            <Link to="categories">
+                                <button className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition font-semibold">
+                                    Explore Categories
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </div>

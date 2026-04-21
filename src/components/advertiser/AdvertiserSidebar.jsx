@@ -7,6 +7,7 @@ import {
     FaAd,
     FaCommentDots
 } from "react-icons/fa";
+import { BarChart3, ClipboardList } from "lucide-react";
 
 export const AdvertiserSidebar = ({ sidebarOpen }) => {
 
@@ -34,6 +35,16 @@ export const AdvertiserSidebar = ({ sidebarOpen }) => {
             icon: <FaCommentDots />,
             path: "/advertiser/feedbacks"
         },
+        {
+            name: "Analytics",
+            path: "/advertiser/analytics",
+            icon: <BarChart3 size={18} />
+        },
+        {
+            name: "Surveys",
+            path: "/advertiser/surveys",
+            icon: <ClipboardList size={18} />
+        }
     ];
 
     return (

@@ -75,7 +75,7 @@ const AdvertisementManagement = () => {
     const handleStatusChange = async (advertisementId, newStatus) => {
         try {
             const token = localStorage.getItem("token")
-            const response = await axios.put(`/ads/advertisement/${advertisementId}`,
+            const response = await axios.put(`/ads/update-status/${advertisementId}`,
                 { status: newStatus },
                 {
                     headers: {
@@ -83,6 +83,8 @@ const AdvertisementManagement = () => {
                     }
                 }
             );
+
+            console.log("response", response);
 
             if (response.status === 200) {
                 // Refresh the list to show the updated status and new action buttons
@@ -93,7 +95,7 @@ const AdvertisementManagement = () => {
             }
         } catch (error) {
             console.error("Error updating status:", error);
-            alert("Failed to update advertisement status.");
+            toast.error("Failed to update advertisement status.");
         }
     };
 

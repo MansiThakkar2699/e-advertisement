@@ -1,113 +1,85 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import {
     Search,
     ClipboardList,
     Sparkles,
     Clock3,
     ArrowRight,
-    Gift,
     CheckCircle2,
     Filter
 } from "lucide-react";
-
-const surveysData = [
-    {
-        id: 1,
-        title: "Favorite Gadget Brand Survey",
-        category: "Electronics",
-        questions: 8,
-        duration: "3 min",
-        reward: "50 Points",
-        status: "Open",
-        image:
-            "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80",
-        desc: "Share your opinion about smartphone and gadget preferences to help improve ad recommendations."
-    },
-    {
-        id: 2,
-        title: "Fashion Style Preference Poll",
-        category: "Fashion",
-        questions: 6,
-        duration: "2 min",
-        reward: "20 Points",
-        status: "Open",
-        image:
-            "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
-        desc: "Tell us which clothing styles, seasonal looks, and shopping trends you prefer most."
-    },
-    {
-        id: 3,
-        title: "Food Combo Choice Survey",
-        category: "Food",
-        questions: 10,
-        duration: "4 min",
-        reward: "Coupon",
-        status: "Open",
-        image:
-            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-        desc: "Help us understand your dining habits, combo preferences, and ordering patterns."
-    },
-    {
-        id: 4,
-        title: "Travel Destination Interest Form",
-        category: "Travel",
-        questions: 7,
-        duration: "3 min",
-        reward: "75 Points",
-        status: "Closed",
-        image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-        desc: "Share your dream destinations and preferred travel experiences for future offers."
-    },
-    {
-        id: 5,
-        title: "Beauty Product Feedback Survey",
-        category: "Beauty",
-        questions: 9,
-        duration: "4 min",
-        reward: "Sample Pack",
-        status: "Open",
-        image:
-            "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
-        desc: "Give feedback on beauty products, skincare choices, and personal care preferences."
-    },
-    {
-        id: 6,
-        title: "Home Decor Taste Poll",
-        category: "Home",
-        questions: 5,
-        duration: "2 min",
-        reward: "30 Points",
-        status: "Open",
-        image:
-            "https://images.unsplash.com/photo-1484101403633-562f891dc89a?auto=format&fit=crop&w=1200&q=80",
-        desc: "Tell us your favorite home design styles and decor product interests."
-    }
-];
-
-const categories = ["All", "Electronics", "Fashion", "Food", "Travel", "Beauty", "Home"];
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Surveys = () => {
+    const [surveys, setSurveys] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
+
+    const fetchSurveys = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get("/survey/surveys");
+            setSurveys(response.data.data || []);
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to fetch surveys");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchSurveys();
+    }, []);
+
+    const categories = useMemo(() => {
+        const unique = [
+            "All",
+            ...new Set(
+                surveys
+                    .map((item) => item.category_id?.name)
+                    .filter(Boolean)
+            )
+        ];
+        return unique;
+    }, [surveys]);
 
     const filteredSurveys = useMemo(() => {
-        let filtered = [...surveysData];
+        let filtered = [...surveys];
 
         if (search.trim()) {
             filtered = filtered.filter(
                 (survey) =>
-                    survey.title.toLowerCase().includes(search.toLowerCase()) ||
-                    survey.category.toLowerCase().includes(search.toLowerCase())
+                    survey.title?.toLowerCase().includes(search.toLowerCase()) ||
+                    survey.description?.toLowerCase().includes(search.toLowerCase()) ||
+                    survey.category_id?.name?.toLowerCase().includes(search.toLowerCase())
             );
         }
 
         if (selectedCategory !== "All") {
-            filtered = filtered.filter((survey) => survey.category === selectedCategory);
+            filtered = filtered.filter(
+                (survey) => survey.category_id?.name === selectedCategory
+            );
         }
 
         return filtered;
-    }, [search, selectedCategory]);
+    }, [surveys, search, selectedCategory]);
+
+    const handleParticipate = (survey) => {
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+
+        if (!token || role !== "viewer") {
+            navigate("/login");
+            return;
+        }
+
+        navigate(`/surveys/${survey._id}`);
+    };
 
     return (
         <div className="w-full">
@@ -125,8 +97,7 @@ const Surveys = () => {
                         </h1>
 
                         <p className="mt-5 text-slate-300 text-base md:text-lg leading-8 max-w-2xl">
-                            Take short surveys, answer interesting polls, and help improve
-                            personalized promotions while earning rewards and offers.
+                            Answer quick surveys to improve recommendations, offers, and ad experiences.
                         </p>
                     </div>
                 </div>
@@ -181,23 +152,17 @@ const Surveys = () => {
                         </div>
 
                         <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-                            Share your interests and get better offers in return
+                            Share your interests and improve your ad experience
                         </h2>
 
                         <p className="mt-4 text-emerald-100 leading-7">
-                            Participate in quick surveys to shape future campaigns, promotions,
-                            and recommendations built around your choices.
+                            Your responses help us show more relevant offers, ads, and promotions.
                         </p>
-
-                        <button className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-600 font-semibold hover:bg-slate-100 transition">
-                            Start Featured Survey
-                            <ArrowRight size={16} />
-                        </button>
                     </div>
                 </div>
             </section>
 
-            {/* Survey Cards */}
+            {/* Survey cards */}
             <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-16">
                 <div className="flex items-center justify-between mb-8">
                     <div>
@@ -220,77 +185,66 @@ const Surveys = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {filteredSurveys.map((survey) => (
                             <div
-                                key={survey.id}
+                                key={survey._id}
                                 className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
                             >
-                                <div className="relative h-56 overflow-hidden">
-                                    <img
-                                        src={survey.image}
-                                        alt={survey.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                                    />
-
-                                    <div className="absolute top-4 left-4 flex items-center gap-2">
-                                        <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-800">
-                                            {survey.category}
-                                        </span>
+                                <div className="p-6">
+                                    <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                        {survey.category_id?.name && (
+                                            <span className="px-3 py-1 rounded-full bg-white/90 border border-slate-200 text-xs font-semibold text-slate-800">
+                                                {survey.category_id.name}
+                                            </span>
+                                        )}
 
                                         <span
-                                            className={`px-3 py-1 rounded-full text-xs font-medium ${survey.status === "Open"
-                                                    ? "bg-emerald-50 text-emerald-600"
-                                                    : "bg-slate-100 text-slate-500"
+                                            className={`px-3 py-1 rounded-full text-xs font-medium ${survey.status === "active"
+                                                ? "bg-emerald-50 text-emerald-600"
+                                                : "bg-slate-100 text-slate-500"
                                                 }`}
                                         >
                                             {survey.status}
                                         </span>
                                     </div>
-                                </div>
 
-                                <div className="p-6">
                                     <h3 className="text-xl font-semibold text-slate-900">
                                         {survey.title}
                                     </h3>
 
                                     <p className="text-slate-600 text-sm leading-6 mt-4">
-                                        {survey.desc}
+                                        {survey.description || "No description available"}
                                     </p>
 
-                                    <div className="grid grid-cols-3 gap-3 mt-5">
+                                    <div className="grid grid-cols-2 gap-3 mt-5">
                                         <div className="rounded-2xl bg-slate-50 p-3 text-center border border-slate-200">
                                             <p className="text-xs text-slate-500">Questions</p>
                                             <p className="text-sm font-semibold text-slate-900 mt-1">
-                                                {survey.questions}
+                                                {survey.questions?.length || 0}
                                             </p>
                                         </div>
 
                                         <div className="rounded-2xl bg-slate-50 p-3 text-center border border-slate-200">
-                                            <p className="text-xs text-slate-500">Duration</p>
-                                            <p className="text-sm font-semibold text-slate-900 mt-1 inline-flex items-center gap-1 justify-center">
-                                                <Clock3 size={13} />
-                                                {survey.duration}
-                                            </p>
-                                        </div>
-
-                                        <div className="rounded-2xl bg-slate-50 p-3 text-center border border-slate-200">
-                                            <p className="text-xs text-slate-500">Reward</p>
-                                            <p className="text-sm font-semibold text-slate-900 mt-1 inline-flex items-center gap-1 justify-center">
-                                                <Gift size={13} />
-                                                {survey.reward}
+                                            <p className="text-xs text-slate-500">Campaign</p>
+                                            <p className="text-sm font-semibold text-slate-900 mt-1 line-clamp-1">
+                                                {survey.campaign_id?.name || "General"}
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 flex items-center justify-between">
-                                        <button className="inline-flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700 transition">
+                                        <button
+                                            onClick={() => handleParticipate(survey)}
+                                            className="inline-flex items-center gap-2 text-emerald-600 font-semibold hover:text-emerald-700 transition"
+                                        >
                                             View Details
                                             <ArrowRight size={16} />
                                         </button>
 
                                         <button
-                                            disabled={survey.status !== "Open"}
-                                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition ${survey.status === "Open"
-                                                    ? "bg-slate-900 text-white hover:bg-slate-800"
-                                                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                            disabled={survey.status !== "active"}
+                                            onClick={() => handleParticipate(survey)}
+                                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition ${survey.status === "active"
+                                                ? "bg-slate-900 text-white hover:bg-slate-800"
+                                                : "bg-slate-100 text-slate-400 cursor-not-allowed"
                                                 }`}
                                         >
                                             <CheckCircle2 size={15} />
@@ -315,6 +269,12 @@ const Surveys = () => {
                     </div>
                 )}
             </section>
+
+            {loading && (
+                <div className="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-2 rounded-xl shadow-lg text-sm">
+                    Loading surveys...
+                </div>
+            )}
         </div>
     );
 };

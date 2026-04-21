@@ -15,7 +15,8 @@ import {
     CirclePause,
     CheckCheck,
     CircleX,
-    Ban
+    Ban,
+    BadgePercent
 } from "lucide-react";
 
 function AdvertisementModal({ advertisementData, closeModal }) {
@@ -198,6 +199,44 @@ function AdvertisementModal({ advertisementData, closeModal }) {
                                         </p>
                                         <p className="text-sm text-slate-500">
                                             {advertisementData.category_id?.description || "No description"}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
+                                    <BadgePercent size={18} className="text-rose-600" />
+                                    Offer Information
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Offer Title
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData?.offer?.title || "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Offer Value
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData?.offer?.value || "N/A"}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            Offer Expiry
+                                        </p>
+                                        <p className="mt-1 text-base font-semibold text-slate-800">
+                                            {advertisementData?.offer?.expiry
+                                                ? new Date(advertisementData.offer.expiry).toLocaleDateString()
+                                                : "N/A"}
                                         </p>
                                     </div>
                                 </div>

@@ -7,8 +7,10 @@ import {
     FaBullhorn,
     FaFolder,
     FaAd,
-    FaCommentDots
+    FaCommentDots,
+    FaEnvelope
 } from "react-icons/fa";
+import { BarChart3, ClipboardList } from "lucide-react";
 
 export const AdminSidebar = ({ sidebarOpen }) => {
 
@@ -46,6 +48,26 @@ export const AdminSidebar = ({ sidebarOpen }) => {
             icon: <FaCommentDots />,
             path: "/admin/feedbacks"
         },
+        {
+            name: "Contact Messages",
+            icon: <FaEnvelope size={18} />,
+            path: "/admin/contacts",
+        },
+        {
+            name: "Analytics",
+            icon: <BarChart3 size={18} />,
+            path: "/admin/analytics",
+        },
+        {
+            name: "Surveys",
+            path: "/admin/surveys",
+            icon: <ClipboardList size={18} />
+        },
+        {
+            name: "Survey Responses",
+            path: "/admin/survey-responses",
+            icon: <ClipboardList size={18} />
+        }
     ];
 
     return (

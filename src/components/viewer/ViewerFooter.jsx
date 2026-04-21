@@ -39,11 +39,11 @@ const ViewerFooter = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-4">Quick Links</h3>
                         <ul className="space-y-3 text-sm">
-                            <li><Link to="/viewer/home" className="hover:text-white transition">Home</Link></li>
-                            <li><Link to="/viewer/ads" className="hover:text-white transition">Ads</Link></li>
-                            <li><Link to="/viewer/categories" className="hover:text-white transition">Categories</Link></li>
-                            <li><Link to="/viewer/offers" className="hover:text-white transition">Offers</Link></li>
-                            <li><Link to="/viewer/surveys" className="hover:text-white transition">Surveys</Link></li>
+                            <li><Link to="/" className="hover:text-white transition">Home</Link></li>
+                            <li><Link to="/ads" className="hover:text-white transition">Ads</Link></li>
+                            <li><Link to="/categories" className="hover:text-white transition">Categories</Link></li>
+                            <li><Link to="/offers" className="hover:text-white transition">Offers</Link></li>
+                            <li><Link to="/surveys" className="hover:text-white transition">Surveys</Link></li>
                         </ul>
                     </div>
 
@@ -51,8 +51,8 @@ const ViewerFooter = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-4">Company</h3>
                         <ul className="space-y-3 text-sm">
-                            <li><Link to="/viewer/about" className="hover:text-white transition">About Us</Link></li>
-                            <li><Link to="/viewer/contact" className="hover:text-white transition">Contact</Link></li>
+                            <li><Link to="/about" className="hover:text-white transition">About Us</Link></li>
+                            <li><Link to="/contact" className="hover:text-white transition">Contact</Link></li>
                             <li><span className="hover:text-white transition cursor-pointer">Privacy Policy</span></li>
                             <li><span className="hover:text-white transition cursor-pointer">Terms & Conditions</span></li>
                         </ul>

@@ -23,8 +23,16 @@ import Ads from "../components/viewer/Ads";
 import Categories from "../components/viewer/Categories";
 import Offers from "../components/viewer/Offers";
 import Surveys from "../components/viewer/Surveys";
+import SurveyDetails from "../components/viewer/SurveyDetails";
 import About from "../components/viewer/About";
 import Contact from "../components/viewer/Contact";
+import AdDetails from "../components/viewer/AdDetails";
+import ContactMessagesPage from "../components/admin/ContactMessagesPage";
+import AdvertiserAnalytics from "../components/advertiser/AdvertiserAnalytics";
+import AdminAnalytics from "../components/admin/AdminAnalytics";
+import SurveyManagement from "../components/admin/SurveyManagement";
+import AdvertiserSurveyPage from "../components/advertiser/AdvertiserSurveyPage";
+import SurveyResponsesPage from "../components/admin/SurveyResponsesPage";
 
 const router = createBrowserRouter([
     {
@@ -77,6 +85,22 @@ const router = createBrowserRouter([
             {
                 path: "feedbacks",
                 element: <FeedbackPage />
+            },
+            {
+                path: "contacts",
+                element: <ContactMessagesPage />
+            },
+            {
+                path: "analytics",
+                element: <AdminAnalytics />
+            },
+            {
+                path: "surveys",
+                element: <SurveyManagement />
+            },
+            {
+                path: "survey-responses",
+                element: <SurveyResponsesPage />
             }
         ]
     },
@@ -106,6 +130,14 @@ const router = createBrowserRouter([
             {
                 path: "advertisements",
                 element: <AdvertisementPage />
+            },
+            {
+                path: "analytics",
+                element: <AdvertiserAnalytics />
+            },
+            {
+                path: "surveys",
+                element: <AdvertiserSurveyPage />
             }
         ]
     },
@@ -120,6 +152,10 @@ const router = createBrowserRouter([
             {
                 path: "ads",
                 element: <Ads />
+            },
+            {
+                path: "ads/:id",
+                element: <AdDetails />
             },
             {
                 path: "categories",
@@ -138,11 +174,15 @@ const router = createBrowserRouter([
                 element: <Contact />
             },
             {
+                path: "surveys",
+                element: <Surveys />
+            },
+            {
                 element: <ProtectedRoutes userRoles={["viewer"]} />,
                 children: [
                     {
-                        path: "surveys",
-                        element: <Surveys />
+                        path: "surveys/:id",
+                        element: <SurveyDetails />
                     }
                 ]
             }

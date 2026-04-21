@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Search,
     ArrowRight,
@@ -9,76 +9,62 @@ import {
     UtensilsCrossed,
     Plane,
     House,
-    HeartPulse
+    HeartPulse,
+    Tag
 } from "lucide-react";
-
-const categoriesData = [
-    {
-        id: 1,
-        name: "Electronics",
-        icon: <Smartphone size={22} />,
-        adsCount: 42,
-        image:
-            "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80",
-        desc: "Discover smart gadgets, mobiles, laptops, TVs, and exciting tech offers."
-    },
-    {
-        id: 2,
-        name: "Fashion",
-        icon: <ShoppingBag size={22} />,
-        adsCount: 35,
-        image:
-            "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=80",
-        desc: "Explore seasonal fashion trends, clothing deals, and exclusive style collections."
-    },
-    {
-        id: 3,
-        name: "Food",
-        icon: <UtensilsCrossed size={22} />,
-        adsCount: 28,
-        image:
-            "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-        desc: "Check out delicious promotions, restaurant deals, and meal combo discounts."
-    },
-    {
-        id: 4,
-        name: "Travel",
-        icon: <Plane size={22} />,
-        adsCount: 19,
-        image:
-            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-        desc: "Find holiday packages, travel discounts, hotel stays, and adventure offers."
-    },
-    {
-        id: 5,
-        name: "Real Estate",
-        icon: <House size={22} />,
-        adsCount: 14,
-        image:
-            "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80",
-        desc: "Browse property promotions, housing opportunities, and real-estate campaigns."
-    },
-    {
-        id: 6,
-        name: "Health & Beauty",
-        icon: <HeartPulse size={22} />,
-        adsCount: 21,
-        image:
-            "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
-        desc: "Explore skincare launches, wellness products, beauty deals, and personal care ads."
-    }
-];
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Categories = () => {
     const [search, setSearch] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    const handleViewCategory = (categoryId) => {
+        navigate(`/ads?category=${categoryId}`);
+    };
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
 
     const filteredCategories = useMemo(() => {
-        if (!search.trim()) return categoriesData;
+        if (!search.trim()) return categories;
 
-        return categoriesData.filter((category) =>
+        return categories.filter((category) =>
             category.name.toLowerCase().includes(search.toLowerCase())
         );
-    }, [search]);
+    }, [search, categories]);
+
+    const fetchCategories = async () => {
+        try {
+            setLoading(true);
+            // Calling your backend API
+            const response = await axios.get('/category/active-category');
+
+            // If you only want the first 3 on the frontend:
+            const data = response.data.data || response.data; // Adjust based on your API structure
+            setCategories(data);
+            setLoading(false);
+            console.log("data : ", data.slice(0, 3))
+        } catch (err) {
+            console.error("Error fetching categories:", err);
+            setError("Failed to load categories.");
+            setLoading(false);
+        }
+    }
+
+    const scrollToCategories = () => {
+        const element = document.getElementById("categories-grid");
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
+    if (loading) return <p>Loading ads...</p>;
+    if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
     return (
         <div className="w-full">
@@ -148,7 +134,8 @@ const Categories = () => {
                             discover new brands, products, and offers every day.
                         </p>
 
-                        <button className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
+                        <button onClick={scrollToCategories}
+                            className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-indigo-700 font-semibold hover:bg-slate-100 transition">
                             Explore Top Categories
                             <ArrowRight size={16} />
                         </button>
@@ -157,7 +144,7 @@ const Categories = () => {
             </section>
 
             {/* Categories Grid */}
-            <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-16">
+            <section id="categories-grid" className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-16">
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <p className="text-indigo-600 text-sm font-medium">Categories</p>
@@ -179,18 +166,30 @@ const Categories = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {filteredCategories.map((category) => (
                             <div
-                                key={category.id}
+                                key={category._id}
                                 className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300"
                             >
                                 <div className="relative h-56 overflow-hidden">
-                                    <img
-                                        src={category.image}
-                                        alt={category.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                                    />
+                                    {
+                                        category.image ? (
+                                            <img
+                                                src={category.image}
+                                                alt={category.name}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                                            />) : (
+                                            <div className="flex flex-col items-center justify-center text-slate-600">
+                                                <Tag size={200} strokeWidth={1.5} />
+                                                <span className="text-sm mt-2 font-medium uppercase tracking-wider">No Image</span>
+                                            </div>
+                                        )
+                                    }
+
+                                    {/* <div className="flex flex-col items-center justify-center text-slate-600"> */}
+
+                                    {/* </div> */}
 
                                     <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 backdrop-blur-sm text-slate-800 text-sm font-medium">
-                                        <span className="text-indigo-600">{category.icon}</span>
+                                        {/* <span className="text-indigo-600">{category.icon}</span> */}
                                         {category.name}
                                     </div>
                                 </div>
@@ -207,10 +206,11 @@ const Categories = () => {
                                     </div>
 
                                     <p className="text-slate-600 text-sm leading-6 mt-4">
-                                        {category.desc}
+                                        {category.description ? category.description : "No Description"}
                                     </p>
 
-                                    <button className="mt-6 inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition">
+                                    <button onClick={() => handleViewCategory(category._id)}
+                                        className="mt-6 inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition">
                                         View Category
                                         <ArrowRight size={16} />
                                     </button>

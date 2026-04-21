@@ -109,7 +109,7 @@ const AdvertiserTopbar = ({ toggleSidebar }) => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
-        window.location.href = "/";
+        window.location.href = "/login";
     };
 
     return (

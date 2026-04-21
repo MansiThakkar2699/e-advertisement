@@ -24,6 +24,9 @@ const AdminTopbar = ({ toggleSidebar }) => {
             "/admin/campaigns": "Campaigns",
             "/admin/advertisements": "Advertisements",
             "/admin/feedbacks": "Feedbacks",
+            "/admin/contacts": "Inquiry",
+            "/admin/analytics": "Analytics",
+            "/admin/surveys": "Surveys"
         };
         return paths[location.pathname] || "Admin Panel";
     };
@@ -111,7 +114,7 @@ const AdminTopbar = ({ toggleSidebar }) => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
-        window.location.href = "/";
+        window.location.href = "/login";
     };
 
     return (
