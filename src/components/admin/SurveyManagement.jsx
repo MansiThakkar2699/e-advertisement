@@ -22,10 +22,10 @@ const statusStyles = {
     deleted: "bg-red-50 text-red-600 border border-red-200"
 };
 
-const emptyQuestion = {
+const getEmptyQuestion = () => ({
     question: "",
     options: ["", ""]
-};
+});
 
 const SurveyManagement = () => {
     const [surveys, setSurveys] = useState([]);
@@ -50,7 +50,7 @@ const SurveyManagement = () => {
         category_id: "",
         campaign_id: "",
         status: "active",
-        questions: [{ ...emptyQuestion }]
+        questions: [getEmptyQuestion()]
     });
 
     const token = localStorage.getItem("token");
@@ -125,7 +125,7 @@ const SurveyManagement = () => {
             category_id: "",
             campaign_id: "",
             status: "active",
-            questions: [{ ...emptyQuestion }]
+            questions: [getEmptyQuestion()]
         });
     };
 
@@ -171,19 +171,39 @@ const SurveyManagement = () => {
     };
 
     const handleOptionChange = (questionIndex, optionIndex, value) => {
-        const updatedQuestions = [...formData.questions];
-        updatedQuestions[questionIndex].options[optionIndex] = value;
+        setFormData((prev) => {
+            const updatedQuestions = prev.questions.map((q, qIndex) => {
+                if (qIndex !== questionIndex) return q;
 
-        setFormData((prev) => ({
-            ...prev,
-            questions: updatedQuestions
-        }));
+                return {
+                    ...q,
+                    options: q.options.map((opt, optIndex) =>
+                        optIndex === optionIndex ? value : opt
+                    )
+                };
+            });
+
+            return {
+                ...prev,
+                questions: updatedQuestions
+            };
+        });
     };
+
+    // const handleOptionChange = (questionIndex, optionIndex, value) => {
+    //     const updatedQuestions = [...formData.questions];
+    //     updatedQuestions[questionIndex].options[optionIndex] = value;
+
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         questions: updatedQuestions
+    //     }));
+    // };
 
     const addQuestion = () => {
         setFormData((prev) => ({
             ...prev,
-            questions: [...prev.questions, { ...emptyQuestion }]
+            questions: [...prev.questions, getEmptyQuestion()]
         }));
     };
 
@@ -191,37 +211,80 @@ const SurveyManagement = () => {
         const updatedQuestions = formData.questions.filter((_, i) => i !== index);
         setFormData((prev) => ({
             ...prev,
-            questions: updatedQuestions.length > 0 ? updatedQuestions : [{ ...emptyQuestion }]
+            questions: updatedQuestions.length > 0 ? updatedQuestions : [getEmptyQuestion()]
         }));
     };
 
-    const addOption = (questionIndex) => {
-        const updatedQuestions = [...formData.questions];
-        updatedQuestions[questionIndex].options.push("");
+    // const addOption = (questionIndex) => {
+    //     const updatedQuestions = [...formData.questions];
+    //     updatedQuestions[questionIndex].options.push("");
 
-        setFormData((prev) => ({
-            ...prev,
-            questions: updatedQuestions
-        }));
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         questions: updatedQuestions
+    //     }));
+    // };
+
+    const addOption = (questionIndex) => {
+        setFormData((prev) => {
+            const updatedQuestions = prev.questions.map((q, qIndex) => {
+                if (qIndex !== questionIndex) return q;
+
+                return {
+                    ...q,
+                    options: [...q.options, ""]
+                };
+            });
+
+            return {
+                ...prev,
+                questions: updatedQuestions
+            };
+        });
     };
 
     const removeOption = (questionIndex, optionIndex) => {
-        const updatedQuestions = [...formData.questions];
+        setFormData((prev) => {
+            const selectedQuestion = prev.questions[questionIndex];
 
-        if (updatedQuestions[questionIndex].options.length <= 2) {
-            toast.error("At least 2 options are required");
-            return;
-        }
+            if (selectedQuestion.options.length <= 2) {
+                toast.error("At least 2 options are required");
+                return prev;
+            }
 
-        updatedQuestions[questionIndex].options = updatedQuestions[questionIndex].options.filter(
-            (_, i) => i !== optionIndex
-        );
+            const updatedQuestions = prev.questions.map((q, qIndex) => {
+                if (qIndex !== questionIndex) return q;
 
-        setFormData((prev) => ({
-            ...prev,
-            questions: updatedQuestions
-        }));
+                return {
+                    ...q,
+                    options: q.options.filter((_, optIndex) => optIndex !== optionIndex)
+                };
+            });
+
+            return {
+                ...prev,
+                questions: updatedQuestions
+            };
+        });
     };
+
+    // const removeOption = (questionIndex, optionIndex) => {
+    //     const updatedQuestions = [...formData.questions];
+
+    //     if (updatedQuestions[questionIndex].options.length <= 2) {
+    //         toast.error("At least 2 options are required");
+    //         return;
+    //     }
+
+    //     updatedQuestions[questionIndex].options = updatedQuestions[questionIndex].options.filter(
+    //         (_, i) => i !== optionIndex
+    //     );
+
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         questions: updatedQuestions
+    //     }));
+    // };
 
     const validateForm = () => {
         if (!formData.title.trim()) {
